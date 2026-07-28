@@ -66,6 +66,7 @@
 - 网络字体走国内镜像 `fonts.loli.net`（Noto Serif SC / Ma Shan Zheng），回退系统宋体/楷体栈。首次渲染和切字体后都等 `document.fonts.ready` 再渲染一次，避免回退字体残留在画布上。
 - 复制图片用 `navigator.clipboard.write` + `ClipboardItem`，需 HTTPS 或 localhost；不支持时降级提示用「下载 PNG」。
 - 用户输入（类型/风格/正文/两行落款/Banner/字体/字号/Logo）持久化在 localStorage（key `xiaowen-card-settings-v1`），`render()` 里统一保存、加载时 `restoreSettings()` 恢复并同步控件选中态。Logo 压缩为 ≤256px PNG dataURL 存储（cookie 4KB 放不下，不用 cookie）。
+- 线上部署在 Cloudflare（随 `main` 自动发布，域名 card.xiaowenz.com）。`web/_headers` 把 html/js/css 全部设为 `no-cache`（协商缓存），**不要**给静态资源配长 max-age——曾因此造成「新 HTML + 旧 JS」混搭、脚本引用已删除的 DOM id 崩溃、预览空白。**改动 `index.html` 引用的 js/css 文件名或结构时，同步 bump 引用上的 `?v=日期` 查询串**，强制老浏览器重拉。
 
 ### 小程序（`miniprogram/`）
 
