@@ -198,10 +198,9 @@ input[type="range"] { width: 100%; accent-color: var(--red); }
 .channel-card.dark h3 { color: var(--cream); }
 .channel-card.dark p { color: var(--ink-note); }
 .channel-card.dark code { background: rgba(237,234,227,.1); color: var(--ink-bright); }
-.qr-placeholder {
-  margin-top: 8px; width: 120px; height: 120px; border: 1px dashed var(--ink-line); border-radius: 6px;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  font-size: 11px; color: var(--ink-note); letter-spacing: .1em; line-height: 1.7;
+.mp-qr {
+  margin-top: 8px; width: 120px; height: 120px; border-radius: 6px;
+  border: 1px solid var(--ink-line); display: block;
 }
 
 /* ============ FEATURES ============ */
