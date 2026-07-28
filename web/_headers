@@ -1,13 +1,14 @@
-# Cloudflare Pages 缓存策略：静态站点无文件指纹（hash），
-# 一律 no-cache（每次请求协商校验，未变更返回 304），
+# Zeabur 静态托管（Caddy）缓存策略。
+# 注意：Zeabur 的 _headers 通配符（/*.js）实测不生效，必须用精确路径。
+# 静态站点无文件指纹（hash），一律 no-cache（每次协商校验，未变更返回 304），
 # 防止 HTML 与 JS/CSS 新旧混搭（曾导致线上预览空白的真实 bug）。
-/*.html
-  Cache-Control: no-cache
 /
   Cache-Control: no-cache
-/*.js
+/index.html
   Cache-Control: no-cache
-/js/*
+/js/card.js
   Cache-Control: no-cache
-/css/*
+/js/app.js
+  Cache-Control: no-cache
+/css/style.css
   Cache-Control: no-cache
