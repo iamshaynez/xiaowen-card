@@ -1,0 +1,100 @@
+<!-- 预览（吸顶，所见即所得） -->
+<view class="preview">
+  <view class="preview-frame">
+    <canvas type="2d" id="cardCanvas" class="card-canvas" style="height:{{canvasH}}"></canvas>
+  </view>
+  <view class="preview-note">预览即所得 · 保存为 1080px 宽高清 PNG</view>
+</view>
+
+<!-- 控制面板 -->
+<view class="panel">
+  <view class="field">
+    <text class="label">卡片类型</text>
+    <view class="seg">
+      <view class="seg-btn {{mode === 'quote' ? 'active' : ''}}" data-mode="quote" bindtap="onMode">金句卡片</view>
+      <view class="seg-btn {{mode === 'long' ? 'active' : ''}}" data-mode="long" bindtap="onMode">长文卡片</view>
+    </view>
+  </view>
+
+  <view class="field">
+    <text class="label">风格</text>
+    <view class="style-row">
+      <view
+        wx:for="{{styles}}"
+        wx:key="key"
+        class="style-chip {{style === item.key ? 'active' : ''}}"
+        data-style="{{item.key}}"
+        bindtap="onStyle"
+      >
+        <view class="sw sw-{{item.key}}"></view>
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="field">
+    <text class="label">正文</text>
+    <textarea
+      class="textarea"
+      value="{{text}}"
+      placeholder="输入一句金句，或一段长文……"
+      auto-height
+      maxlength="-1"
+      bindinput="onText"
+    />
+  </view>
+
+  <view class="field">
+    <text class="label">落款（固定于卡片底部）</text>
+    <input class="input" value="{{signature}}" maxlength="20" bindinput="onSign" />
+  </view>
+
+  <view class="field">
+    <text class="label">Banner 顶部文字</text>
+    <input class="input" value="{{brand}}" maxlength="30" bindinput="onBrand" />
+  </view>
+
+  <view class="field">
+    <text class="label">Logo（可选）</text>
+    <view class="logo-row">
+      <view class="logo-btn" bindtap="onChooseLogo">{{logoPath ? '更换 Logo' : '选择 Logo'}}</view>
+      <view wx:if="{{logoPath}}" class="logo-clear" bindtap="onClearLogo">移除</view>
+      <text wx:if="{{logoPath}}" class="logo-name">已选择 Logo</text>
+    </view>
+  </view>
+
+  <view class="field">
+    <text class="label">字体</text>
+    <view class="seg">
+      <view
+        wx:for="{{fonts}}"
+        wx:key="key"
+        class="seg-btn {{fontFamily === item.key ? 'active' : ''}}"
+        data-font="{{item.key}}"
+        bindtap="onFont"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="field">
+    <text class="label">字号 <text class="size-out">{{fontSize}}</text></text>
+    <slider
+      min="28"
+      max="88"
+      value="{{fontSize}}"
+      activeColor="#CE1432"
+      backgroundColor="#D8D6D1"
+      block-size="20"
+      bindchanging="onSizeChanging"
+      bindchange="onSizeChange"
+    />
+  </view>
+</view>
+
+<!-- 底部操作栏 -->
+<view class="bottom-bar">
+  <view class="btn btn-primary save-btn {{saving ? 'disabled' : ''}}" bindtap="onSave">{{saving ? '生成中…' : '保存到相册'}}</view>
+</view>
+
+<!-- 导出专用画布（离屏，1080px 宽） -->
+<canvas type="2d" id="exportCanvas" class="export-canvas"></canvas>

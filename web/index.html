@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小文卡片 · 金句与长文卡片生成器</title>
+<meta name="description" content="把一段文字、一句金句，生成一张优雅的中文卡片图片。支持 Logo、 Banner、正文、落款，字体字号可调，多种风格，可下载可复制。">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link rel="preconnect" href="https://fonts.gstatic.loli.net" crossorigin>
+<link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;600;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-seal">文</span>
+      <span class="brand-name">小文卡片</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#studio">在线制作</a>
+      <a href="#channels">两个版本</a>
+      <a href="#features">特性</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <p class="hero-kicker">TEXT &nbsp;TO &nbsp;CARD &nbsp;· &nbsp;字 句 成 卡</p>
+  <h1 class="hero-title">
+    把一句话，<br>做成一张<span class="accent">好看</span>的卡片。
+  </h1>
+  <p class="hero-sub">
+    金句卡片 · 长文卡片 —— Logo、Banner、正文、固定落款，<br class="br-pc">
+    字体字号随心调，四种优雅风格，一键下载或复制到剪贴板。
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="#studio">立即在线制作</a>
+    <a class="btn btn-ghost" href="#channels">微信小程序版</a>
+  </div>
+  <div class="hero-sample">
+    <div class="sample-card">
+      <div class="sample-head"><span class="dot"></span>小文卡片 · 每日一句</div>
+      <div class="sample-rule"></div>
+      <p class="sample-quote">「 人生如逆旅，<br>我亦是行人。 」</p>
+      <div class="sample-foot">
+        <span class="sample-sign">—— 苏轼</span>
+        <span class="sample-seal">印</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STUDIO ============ -->
+<section id="studio" class="studio">
+  <div class="section-head">
+    <p class="section-kicker">WEB STUDIO · 网 页 版</p>
+    <h2>在线制作台</h2>
+  </div>
+
+  <div class="studio-grid">
+    <!-- 控制面板 -->
+    <div class="panel">
+      <div class="field">
+        <label>卡片类型</label>
+        <div class="seg" id="segMode">
+          <button class="seg-btn active" data-mode="quote">金句卡片</button>
+          <button class="seg-btn" data-mode="long">长文卡片</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>风格</label>
+        <div class="style-row" id="styleRow">
+          <button class="style-chip active" data-style="paper"><span class="sw sw-paper"></span>冷灰笺</button>
+          <button class="style-chip" data-style="ink"><span class="sw sw-ink"></span>玄黑卡</button>
+          <button class="style-chip" data-style="cinnabar"><span class="sw sw-cinnabar"></span>朱砂签</button>
+          <button class="style-chip" data-style="vertical"><span class="sw sw-vertical"></span>竖排墨</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="inpText">正文</label>
+        <textarea id="inpText" rows="5" placeholder="输入一句金句，或一段长文……">人生如逆旅，我亦是行人。</textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="inpSign">落款（固定于卡片底部）</label>
+          <input id="inpSign" type="text" value="小文 记" maxlength="20">
+        </div>
+        <div class="field">
+          <label for="inpBrand">Banner 顶部文字</label>
+          <input id="inpBrand" type="text" value="小文卡片 · 每日一句" maxlength="30">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Logo（可选）</label>
+        <div class="logo-row">
+          <label class="logo-btn">
+            <input id="inpLogo" type="file" accept="image/*" hidden>
+            上传 Logo
+          </label>
+          <button class="logo-clear" id="btnClearLogo" type="button" hidden>移除</button>
+          <span class="logo-name" id="logoName"></span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="selFont">字体</label>
+          <select id="selFont">
+            <option value="serif" selected>思源宋体</option>
+            <option value="kai">楷体</option>
+            <option value="hei">黑体</option>
+            <option value="shan">马善政毛笔体</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rngSize">字号 <output id="outSize">56</output></label>
+          <input id="rngSize" type="range" min="28" max="88" value="56">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnDownload">下载 PNG</button>
+        <button class="btn btn-ghost" id="btnCopy">复制到剪贴板</button>
+      </div>
+      <p class="hint" id="hint"></p>
+    </div>
+
+    <!-- 预览 -->
+    <div class="preview">
+      <div class="preview-frame">
+        <canvas id="cardCanvas" width="1080" height="1080"></canvas>
+      </div>
+      <p class="preview-note">预览即所得 · 输出 1080px 宽高清 PNG</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHANNELS ============ -->
+<section id="channels" class="channels">
+  <div class="section-head">
+    <p class="section-kicker">TWO CHANNELS · 两 个 版 本</p>
+    <h2>网页在此，小程序随行</h2>
+  </div>
+  <div class="channel-grid">
+    <div class="channel-card">
+      <p class="channel-tag">WEB</p>
+      <h3>网页版</h3>
+      <p>就在本页。打开即用，无需安装；支持 Logo 上传、四种风格、字体字号调节，生成后可下载 PNG 或直接复制到剪贴板。</p>
+      <a class="btn btn-ghost" href="#studio">去制作</a>
+    </div>
+    <div class="channel-card dark">
+      <p class="channel-tag">MINI PROGRAM</p>
+      <h3>微信小程序版</h3>
+      <p>同一套设计语言，装进口袋。代码位于本仓库 <code>miniprogram/</code> 目录，用微信开发者工具导入即可预览、上传发布；生成卡片一键保存到相册。</p>
+      <div class="qr-placeholder"><span>小程序码<br>（发布后替换）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="features" class="features">
+  <div class="section-head">
+    <p class="section-kicker">FEATURES · 特 性</p>
+    <h2>为中文排版而生</h2>
+  </div>
+  <ul class="feature-list">
+    <li><b>四种风格</b><span>冷灰笺 · 玄黑卡 · 朱砂签 · 竖排墨，冷漆红只点睛，永不铺底。</span></li>
+    <li><b>完整结构</b><span>Logo、Banner、正文、固定落款、朱文印章，一应俱全。</span></li>
+    <li><b>字体字号</b><span>思源宋体 / 楷体 / 黑体 / 毛笔体，字号滑杆即时预览。</span></li>
+    <li><b>高清输出</b><span>1080px 宽 PNG，逐字排版换行，竖排从右至左。</span></li>
+    <li><b>下载 &amp; 复制</b><span>一键下载 PNG，或直接复制图片到剪贴板。</span></li>
+    <li><b>双端一致</b><span>网页版与微信小程序版共用同一套色彩与版式语言。</span></li>
+  </ul>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="brand-seal small">文</span>
+    <span>小文卡片 · 字句成卡</span>
+    <span class="footer-dim">玄黑 #141210 · 冷灰 #F1F1EF · 冷漆红 #CE1432 · 奶白 #EDEAE3</span>
+  </div>
+</footer>
+
+<script src="js/card.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

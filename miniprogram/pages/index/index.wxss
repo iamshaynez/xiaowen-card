@@ -1,0 +1,237 @@
+/* ============ HERO ============ */
+.hero {
+  padding: 90rpx 48rpx 80rpx;
+  text-align: center;
+}
+.hero-kicker {
+  margin-bottom: 32rpx;
+}
+.hero-title {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 56rpx;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  white-space: pre-line;
+}
+.hero-title .accent {
+  color: var(--red);
+}
+.hero-sub {
+  margin-top: 28rpx;
+  color: var(--sub);
+  font-size: 28rpx;
+  line-height: 1.9;
+}
+.hero-actions {
+  margin-top: 44rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-sample {
+  margin-top: 80rpx;
+  display: flex;
+  justify-content: center;
+}
+.sample-card {
+  width: 600rpx;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 20rpx;
+  padding: 56rpx 56rpx 48rpx;
+  text-align: left;
+  box-shadow: 0 30rpx 60rpx -20rpx rgba(20, 18, 16, 0.45);
+  transform: rotate(-1.2deg);
+  box-sizing: border-box;
+}
+.sample-head {
+  font-size: 22rpx;
+  letter-spacing: 0.3em;
+  color: var(--ink-note);
+  display: flex;
+  align-items: center;
+}
+.sample-head .dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: var(--red);
+  border-radius: 4rpx;
+  margin-right: 14rpx;
+}
+.sample-rule {
+  height: 1rpx;
+  background: var(--ink-line);
+  margin: 28rpx 0 40rpx;
+}
+.sample-quote {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 42rpx;
+  line-height: 1.9;
+  letter-spacing: 0.08em;
+  white-space: pre-line;
+}
+.sample-foot {
+  margin-top: 44rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.sample-sign {
+  font-family: var(--serif);
+  color: var(--ink-bright);
+  font-size: 26rpx;
+  letter-spacing: 0.1em;
+}
+.sample-seal {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 10rpx;
+  background: var(--red);
+  color: var(--cream);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 36rpx;
+}
+
+/* ============ 区块头 ============ */
+.section-head {
+  text-align: center;
+  margin-bottom: 56rpx;
+}
+.section-title {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 48rpx;
+  letter-spacing: 0.06em;
+  margin-top: 16rpx;
+}
+
+/* ============ CHANNELS ============ */
+.channels {
+  padding: 90rpx 48rpx;
+  border-top: 1rpx solid var(--hair);
+}
+.channel-card {
+  border: 1rpx solid var(--hair);
+  border-radius: 16rpx;
+  padding: 48rpx 44rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 28rpx;
+}
+.channel-card.dark {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.channel-tag {
+  font-size: 20rpx;
+  letter-spacing: 0.4em;
+  color: var(--red);
+}
+.channel-name {
+  font-family: var(--serif);
+  font-size: 40rpx;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-top: 16rpx;
+}
+.channel-card.dark .channel-name {
+  color: var(--cream);
+}
+.channel-desc {
+  color: var(--sub);
+  font-size: 27rpx;
+  margin-top: 16rpx;
+}
+.channel-card.dark .channel-desc {
+  color: var(--ink-note);
+}
+.channel-card .btn {
+  margin-top: 32rpx;
+}
+.dark-ghost {
+  color: var(--cream);
+  border-color: var(--ink-line);
+}
+.dark-ghost:active {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+/* ============ FEATURES ============ */
+.features {
+  padding: 90rpx 48rpx;
+  border-top: 1rpx solid var(--hair);
+}
+.feature-list {
+  border: 1rpx solid var(--hair);
+  background: var(--hair);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rpx;
+}
+.feature-item {
+  background: var(--paper);
+  padding: 40rpx 36rpx;
+  display: flex;
+  flex-direction: column;
+}
+.feature-name {
+  font-family: var(--serif);
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  display: flex;
+  flex-direction: column;
+}
+.feature-name::before {
+  content: "";
+  width: 36rpx;
+  height: 6rpx;
+  background: var(--red);
+  margin-bottom: 20rpx;
+}
+.feature-desc {
+  font-size: 25rpx;
+  color: var(--sub);
+  margin-top: 12rpx;
+}
+
+/* ============ FOOTER ============ */
+.footer {
+  border-top: 1rpx solid var(--hair);
+  padding: 40rpx 48rpx 60rpx;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.brand-seal {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 10rpx;
+  background: var(--red);
+  color: var(--cream);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 28rpx;
+  margin-right: 16rpx;
+}
+.footer-text {
+  font-size: 26rpx;
+  color: var(--sub);
+  letter-spacing: 0.1em;
+}
+.footer-dim {
+  width: 100%;
+  margin-top: 12rpx;
+  color: var(--faint);
+  font-size: 22rpx;
+}

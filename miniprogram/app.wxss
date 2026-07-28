@@ -1,0 +1,60 @@
+/* ============ 小文卡片 · 设计令牌（与 web/css/style.css 一致） ============ */
+page {
+  --ink: #141210;
+  --paper: #F1F1EF;
+  --red: #CE1432;
+  --cream: #EDEAE3;
+  --sub: #5A544C;
+  --faint: #9A948C;
+  --hair: #D8D6D1;
+  --ink-bright: #DCD7CE;
+  --ink-note: #A39D93;
+  --ink-line: #3A3530;
+  --serif: "Songti SC", "STSong", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", sans-serif;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 30rpx;
+  line-height: 1.8;
+}
+
+/* 按钮（与 web 版一致：玄黑实底 / 描边幽灵） */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22rpx 56rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  letter-spacing: 0.18em;
+  border: 1rpx solid transparent;
+  box-sizing: border-box;
+}
+.btn-primary {
+  background: var(--ink);
+  color: var(--cream);
+}
+.btn-primary:active {
+  background: var(--red);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.btn-ghost:active {
+  color: var(--red);
+  border-color: var(--red);
+}
+.btn.disabled {
+  opacity: 0.5;
+}
+
+/* kicker 小字宽字距 */
+.kicker {
+  font-size: 22rpx;
+  letter-spacing: 0.5em;
+  color: var(--faint);
+}

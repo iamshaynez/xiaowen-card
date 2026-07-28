@@ -1,0 +1,67 @@
+<!-- ============ HERO ============ -->
+<view class="hero">
+  <view class="kicker hero-kicker">TEXT TO CARD · 字 句 成 卡</view>
+  <view class="hero-title">
+    把一句话，{'\n'}做成一张<text class="accent">好看</text>的卡片。
+  </view>
+  <view class="hero-sub">
+    金句卡片 · 长文卡片 —— Logo、Banner、正文、固定落款，字体字号随心调，四种优雅风格，一键保存到相册。
+  </view>
+  <view class="hero-actions">
+    <view class="btn btn-primary" bindtap="goCard">开始制作</view>
+  </view>
+
+  <view class="hero-sample">
+    <view class="sample-card">
+      <view class="sample-head"><view class="dot"></view>小文卡片 · 每日一句</view>
+      <view class="sample-rule"></view>
+      <view class="sample-quote">「 人生如逆旅，{'\n'}我亦是行人。 」</view>
+      <view class="sample-foot">
+        <text class="sample-sign">—— 苏轼</text>
+        <text class="sample-seal">印</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- ============ CHANNELS ============ -->
+<view class="channels">
+  <view class="section-head">
+    <view class="kicker">TWO CHANNELS · 两 个 版 本</view>
+    <view class="section-title">网页在此，小程序随行</view>
+  </view>
+  <view class="channel-card">
+    <view class="channel-tag">WEB</view>
+    <view class="channel-name">网页版</view>
+    <view class="channel-desc">位于本仓库 web/ 目录，浏览器打开 index.html 即用，无需安装；支持 Logo 上传、四种风格、字体字号调节，生成后可下载 PNG 或复制到剪贴板。</view>
+  </view>
+  <view class="channel-card dark">
+    <view class="channel-tag">MINI PROGRAM</view>
+    <view class="channel-name">微信小程序版</view>
+    <view class="channel-desc">同一套设计语言，装进口袋。即你正在使用的当前版本；生成卡片一键保存到相册。</view>
+    <view class="btn btn-ghost dark-ghost" bindtap="goCard">开始制作</view>
+  </view>
+</view>
+
+<!-- ============ FEATURES ============ -->
+<view class="features">
+  <view class="section-head">
+    <view class="kicker">FEATURES · 特 性</view>
+    <view class="section-title">为中文排版而生</view>
+  </view>
+  <view class="feature-list">
+    <view class="feature-item"><text class="feature-name">四种风格</text><text class="feature-desc">冷灰笺 · 玄黑卡 · 朱砂签 · 竖排墨，冷漆红只点睛，永不铺底。</text></view>
+    <view class="feature-item"><text class="feature-name">完整结构</text><text class="feature-desc">Logo、Banner、正文、固定落款、朱文印章，一应俱全。</text></view>
+    <view class="feature-item"><text class="feature-name">字体字号</text><text class="feature-desc">宋体 / 楷体 / 黑体，字号滑杆即时预览。</text></view>
+    <view class="feature-item"><text class="feature-name">高清输出</text><text class="feature-desc">1080px 宽 PNG，逐字排版换行，竖排从右至左。</text></view>
+    <view class="feature-item"><text class="feature-name">保存到相册</text><text class="feature-desc">一键生成高清卡片图片，保存到系统相册随时分享。</text></view>
+    <view class="feature-item"><text class="feature-name">双端一致</text><text class="feature-desc">网页版与微信小程序版共用同一套色彩与版式语言。</text></view>
+  </view>
+</view>
+
+<!-- ============ FOOTER ============ -->
+<view class="footer">
+  <text class="brand-seal">文</text>
+  <text class="footer-text">小文卡片 · 字句成卡</text>
+  <text class="footer-dim">玄黑 #141210 · 冷灰 #F1F1EF · 冷漆红 #CE1432 · 奶白 #EDEAE3</text>
+</view>

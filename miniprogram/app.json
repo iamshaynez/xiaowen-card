@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/card/card"
+  ],
+  "window": {
+    "backgroundColor": "#F1F1EF",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#F1F1EF",
+    "navigationBarTitleText": "小文卡片",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
