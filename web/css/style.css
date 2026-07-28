@@ -153,7 +153,7 @@ input[type="range"] { width: 100%; accent-color: var(--red); }
 .sw-paper { background: var(--paper); }
 .sw-ink { background: var(--ink); }
 .sw-cinnabar { background: linear-gradient(90deg, var(--red) 3px, var(--paper) 3px); }
-.sw-vertical { background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 7px), var(--ink); background-color: var(--ink); }
+.sw-songhua { background: #F1EAD6; }
 .sw-moon { background: #E4ECEC; }
 .sw-indigo { background: #232D36; }
 .sw-tea { background: #EFE9DD; }
