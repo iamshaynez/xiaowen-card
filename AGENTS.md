@@ -101,6 +101,7 @@ cd web && python3 -m http.server 8080        # 网页版
 
 1. **日常开发**：从 `dev` 切特性分支（`feat/xxx`、`fix/xxx`），推分支后开 PR → `dev`。
 2. **发布**：开 PR `dev` → `main`，合并后在 `main` 上打 tag（`git tag vX.Y.Z && git push origin vX.Y.Z`）完成发布。
+3. **合并后清理分支**：PR 合并后必须删除对应特性分支（远端+本地），可用 `gh pr merge <n> --merge --delete-branch` 一步完成（gh 会顺带删本地分支并切回基线分支）。遗留的已合并旧分支随时清理：先 `git branch -r --merged origin/dev` 确认已全部合并，再 `git push origin --delete <branch>` 删除。远端只保留 `main` 和 `dev` 两个常驻分支。
 
 不要直接把提交推到 `main` 或 `dev`——保护规则会拒绝；即便有权限绕过，也违反项目流程。
 
