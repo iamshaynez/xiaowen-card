@@ -68,7 +68,7 @@
 - 网络字体走国内镜像 `fonts.loli.net`（Noto Serif SC / Ma Shan Zheng），回退系统宋体/楷体栈。首次渲染和切字体后都等 `document.fonts.ready` 再渲染一次，避免回退字体残留在画布上。
 - 复制图片用 `navigator.clipboard.write` + `ClipboardItem`，需 HTTPS 或 localhost；不支持时降级提示用「下载 PNG」。
 - 用户输入（类型/风格/正文/两行落款/Banner/字体/字号/Logo）持久化在 localStorage（key `xiaowen-card-settings-v1`），`render()` 里统一保存、加载时 `restoreSettings()` 恢复并同步控件选中态。Logo 压缩为 ≤256px PNG dataURL 存储（cookie 4KB 放不下，不用 cookie）。
-- 线上部署在 Zeabur 静态托管（Caddy，前置 Cloudflare 代理；随 `main` 自动发布，域名 card.xiaowenz.com）。Zeabur 默认给 js/css 等静态资源 `max-age=16070400`（186 天）强缓存，且**平台默认值优先级高于 `web/_headers`，无法覆盖**（通配符规则更是直接不生效；`_headers` 里只保留 HTML 的 `no-cache`）。因此 js/css 的缓存正确性靠**文件指纹**：**改动任何 js/css 后，必须同步 bump `index.html` 引用上的 `?v=日期` 查询串**——HTML 永远新鲜，新 URL 强制所有浏览器重拉。曾因此坑造成「新 HTML + 旧 JS」混搭、脚本引用已删除的 DOM id 崩溃、预览空白（2026-07 真实事故）。
+- 线上部署在 Zeabur 静态托管（Caddy，前置 Cloudflare 代理；随 `main` 自动发布，域名 card.xiaowenz.com）。Zeabur 默认给 js/css 等静态资源 `max-age=16070400`（186 天）强缓存，且**平台默认值优先级高于 `web/_headers`，无法覆盖**（通配符规则更是直接不生效；`_headers` 里只保留 HTML 的 `no-cache`）。因此 js/css 的缓存正确性靠**文件指纹**：**改动任何 js/css 后，必须同步 bump `index.html` 引用上的 `?v=日期` 查询串**——HTML 永远新鲜，新 URL 强制所有浏览器重拉。**`?v` 值绝不能复用已发布过的**：同一天多次发布要用 `?v=日期-r2`、`-r3` 递增（2026-07-28 真实事故：新版本沿用了上一版相同的 `?v=20260728`，URL 没变导致 Cloudflare 与浏览器继续喂旧 JS，新风格按钮点击全部不生效，以 v0.4.1 hotfix 修复）。曾因此坑造成「新 HTML + 旧 JS」混搭、脚本引用已删除的 DOM id 崩溃、预览空白（2026-07 真实事故）。
 
 ### 小程序（`miniprogram/`）
 
