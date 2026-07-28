@@ -1,0 +1,9 @@
+{
+  "name": "xiaowen-card",
+  "version": "0.1.0",
+  "private": true,
+  "description": "小文卡片 · 金句与长文卡片生成器（网页版 + 微信小程序版，零依赖）",
+  "scripts": {
+    "test": "node --test"
+  }
+}

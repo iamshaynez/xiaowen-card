@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JS 语法检查（全部 .js）
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            node --check "$f" || fail=1
+          done < <(find . -name '*.js' -not -path './.git/*' -not -path './node_modules/*')
+          exit $fail
+
+      - name: 单元测试（node:test）
+        run: node --test

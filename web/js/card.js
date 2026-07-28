@@ -202,7 +202,7 @@
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         // 加宽字距
-        var brand = String(o.brand).split('').join('  ');
+        var brand = String(o.brand).split('').join('\u2009\u2009');
         ctx.fillText(brand, hx, y + 30);
       }
       // 头部右端红点小记
@@ -314,7 +314,7 @@
       ctx.font = '400 26px ' + FONTS.serif;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(o.brand).split('').join('  '), pad, 52);
+      ctx.fillText(String(o.brand).split('').join('\u2009\u2009'), pad, 52);
     }
     ctx.fillStyle = PALETTE.red;
     ctx.fillRect(W - pad - 12, 44, 12, 12);

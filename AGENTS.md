@@ -76,24 +76,33 @@
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
 - 字体只用系统栈（serif / KaiTi / sans-serif），无 `shan`；要加网络字体需 `wx.loadFontFace`。
 
-## 验证方式（无测试框架，无构建）
+## 验证方式（无构建，零依赖）
 
 ```bash
-# 语法：全部 JS
-for f in $(find . -name '*.js' -not -path './.git/*'); do node --check "$f"; done
+# 单元测试：Node 内置 node:test（Node ≥ 18），CI 同款
+npm test                       # = node --test
 
-# 渲染引擎冒烟：stub ctx 在 Node 里跑（web 版用 global.window = global 后 require）
-# 小程序版同理直接 require，传 { measureText } 的 Proxy ctx 即可，见 git 历史中的用法
+# 语法：全部 JS（CI 也跑）
+for f in $(find . -name '*.js' -not -path './.git/*' -not -path './node_modules/*'); do node --check "$f"; done
 
 # 手工验证
 cd web && python3 -m http.server 8080        # 网页版
 # 小程序版：微信开发者工具导入 miniprogram/
 ```
 
-改渲染引擎后至少跑一遍 stub 冒烟（4 风格 × 2 模式 + 空文本 + 带 Logo），确认无运行时错误且输出尺寸合理（横排宽恒 1080、高随内容；竖排高固定、宽随列数）。
+`test/render.test.js` 用记录型 stub ctx 驱动双端引擎，覆盖：色彩纪律（双端 PALETTE 一致）、4 风格 × 2 模式冒烟、内容自适应尺寸、单行/两行落款、竖排列序，以及最关键的**双端渲染序列一致性**（同一 opts 下两端 fillText 序列逐字节相同）。改渲染引擎后必须跑测试——双端版式数值不一致会被一致性用例直接抓住（它曾抓到两端 Banner 字距空格字符不同的真实 bug）。
+
+## 分支与发布（保护分支，仅 PR 合并）
+
+`main` 和 `dev` 都是保护分支：禁止直接 push，只能走 PR 且 CI（`test` 检查）必须通过。标准流程：
+
+1. **日常开发**：从 `dev` 切特性分支（`feat/xxx`、`fix/xxx`），推分支后开 PR → `dev`。
+2. **发布**：开 PR `dev` → `main`，合并后在 `main` 上打 tag（`git tag vX.Y.Z && git push origin vX.Y.Z`）完成发布。
+
+不要直接把提交推到 `main` 或 `dev`——保护规则会拒绝；即便有权限绕过，也违反项目流程。
 
 ## 工程约定
 
 - 代码注释、commit message、文档一律中文（项目语言）；标识符英文。
-- 代码风格：ES5 语法的 IIFE（web）/ `module.exports`（小程序），`var`，无分号争议——跟现有文件保持一致，**不要引入构建工具、框架或包管理器**，这是刻意保持的零依赖。
+- 代码风格：ES5 语法的 IIFE（web）/ `module.exports`（小程序），`var`，无分号争议——跟现有文件保持一致，**不要引入构建工具、框架或第三方依赖**，这是刻意保持的零依赖（根目录 `package.json` 仅承载 `npm test` 脚本，不是依赖入口）。
 - 改完版式记得同步检查 README.md「双端差异」一节是否仍然准确。
