@@ -1,5 +1,8 @@
 var CardRenderer = require('../../utils/card-renderer.js');
 
+// 用户输入持久化（wx.setStorageSync，下次打开自动恢复）
+var STORAGE_KEY = 'card-settings-v1';
+
 Page({
   data: {
     mode: 'quote',          // quote 金句 / long 长文
@@ -30,6 +33,42 @@ Page({
     this._timer = null;     // 输入防抖
     this._logoImgs = {};    // 每个画布各自的 Logo Image 缓存
     this._lastH = 0;
+    this.restoreSettings();
+  },
+
+  /* ---------- 输入持久化 ---------- */
+
+  saveSettings: function () {
+    var d = this.data;
+    try {
+      wx.setStorageSync(STORAGE_KEY, {
+        mode: d.mode,
+        style: d.style,
+        text: d.text,
+        signature: d.signature,
+        brand: d.brand,
+        fontFamily: d.fontFamily,
+        fontSize: d.fontSize,
+        logoPath: d.logoPath
+      });
+    } catch (e) { /* 存储失败时静默忽略 */ }
+  },
+
+  restoreSettings: function () {
+    var s;
+    try { s = wx.getStorageSync(STORAGE_KEY); } catch (e) { s = null; }
+    if (!s || typeof s !== 'object') return;
+    var patch = {};
+    if (s.mode === 'quote' || s.mode === 'long') patch.mode = s.mode;
+    if (['paper', 'ink', 'cinnabar', 'vertical'].indexOf(s.style) > -1) patch.style = s.style;
+    if (['serif', 'kai', 'hei'].indexOf(s.fontFamily) > -1) patch.fontFamily = s.fontFamily;
+    if (typeof s.fontSize === 'number') patch.fontSize = Math.max(28, Math.min(88, s.fontSize));
+    if (typeof s.text === 'string' && s.text) patch.text = s.text;
+    if (typeof s.signature === 'string') patch.signature = s.signature;
+    if (typeof s.brand === 'string') patch.brand = s.brand;
+    // 持久文件路径（wx.saveFile 保存），文件被系统清理时 getLogo 会兜底为无 Logo
+    if (typeof s.logoPath === 'string' && s.logoPath) patch.logoPath = s.logoPath;
+    this.setData(patch);
   },
 
   onReady: function () {
@@ -84,6 +123,7 @@ Page({
 
   renderPreview: function () {
     var that = this;
+    this.saveSettings();
     if (!this.canvasNode) return;
     var seq = ++this._seq;
     this.getLogo('preview', this.canvasNode).then(function (logo) {
@@ -157,8 +197,18 @@ Page({
         var f = res.tempFiles && res.tempFiles[0];
         if (!f) return;
         that._logoImgs = {};
-        that.setData({ logoPath: f.tempFilePath });
-        that.renderPreview();
+        // 临时文件重启后可能失效，转存为持久文件以便下次恢复；失败则退回临时路径
+        wx.saveFile({
+          tempFilePath: f.tempFilePath,
+          success: function (sv) {
+            that.setData({ logoPath: sv.savedFilePath });
+            that.renderPreview();
+          },
+          fail: function () {
+            that.setData({ logoPath: f.tempFilePath });
+            that.renderPreview();
+          }
+        });
       }
     });
   },

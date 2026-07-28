@@ -65,6 +65,7 @@
 - 3 个文件职责：`index.html`（结构）、`css/style.css`（`:root` 设计令牌）、`js/card.js`（渲染）+ `js/app.js`（控件/下载/剪贴板，120ms 输入防抖）。
 - 网络字体走国内镜像 `fonts.loli.net`（Noto Serif SC / Ma Shan Zheng），回退系统宋体/楷体栈。首次渲染和切字体后都等 `document.fonts.ready` 再渲染一次，避免回退字体残留在画布上。
 - 复制图片用 `navigator.clipboard.write` + `ClipboardItem`，需 HTTPS 或 localhost；不支持时降级提示用「下载 PNG」。
+- 用户输入（类型/风格/正文/两行落款/Banner/字体/字号/Logo）持久化在 localStorage（key `xiaowen-card-settings-v1`），`render()` 里统一保存、加载时 `restoreSettings()` 恢复并同步控件选中态。Logo 压缩为 ≤256px PNG dataURL 存储（cookie 4KB 放不下，不用 cookie）。
 
 ### 小程序（`miniprogram/`）
 
@@ -75,6 +76,7 @@
 - 导出链：`canvas.toTempFilePath → wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
 - 字体只用系统栈（serif / KaiTi / sans-serif），无 `shan`；要加网络字体需 `wx.loadFontFace`。
+- 用户输入持久化在 `wx.setStorageSync`（key `card-settings-v1`），`renderPreview()` 里统一保存、`onLoad` 里 `restoreSettings()` 恢复。Logo 选择后经 `wx.saveFile` 转存为持久文件再存路径（临时路径重启会失效；文件被系统清理时 `getLogo` 兜底为无 Logo）。
 
 ## 验证方式（无构建，零依赖）
 
