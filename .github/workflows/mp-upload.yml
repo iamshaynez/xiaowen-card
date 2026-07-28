@@ -1,0 +1,39 @@
+name: 小程序上传
+
+# 打 tag（v*）时自动上传小程序代码到微信后台「版本管理」，
+# 上传后仍需在 mp.weixin.qq.com 手动「提交审核 → 发布」。
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 私钥来自 Secrets（MP_PRIVATE_KEY），不落仓库
+      - name: 写入上传密钥
+        run: echo "$MP_PRIVATE_KEY" > private.key
+        env:
+          MP_PRIVATE_KEY: ${{ secrets.MP_PRIVATE_KEY }}
+
+      # npx 临时安装 miniprogram-ci，仓库保持零依赖
+      - name: 上传小程序代码
+        env:
+          MP_APPID: ${{ secrets.MP_APPID }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          npx --yes miniprogram-ci upload \
+            --pp ./miniprogram \
+            --pkp ./private.key \
+            --appid "$MP_APPID" \
+            --uv "${VERSION#v}" \
+            --ud "CI 自动上传 $VERSION" \
+            -r 1 \
+            --enable-es6 true \
+            --minify true
