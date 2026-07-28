@@ -103,6 +103,25 @@ cd web && python3 -m http.server 8080        # 网页版
 
 不要直接把提交推到 `main` 或 `dev`——保护规则会拒绝；即便有权限绕过，也违反项目流程。
 
+## 小程序发布（CI 手动上传）
+
+小程序代码上传走 GitHub Actions workflow `.github/workflows/mp-upload.yml`，**纯手动触发**（`workflow_dispatch`，无任何自动触发条件）。版本号在触发时以参数传入，不依赖 git tag。
+
+```bash
+# 手动触发上传（version 为上传版本号，workflow 只能跑在默认分支 main 上）
+gh workflow run mp-upload.yml -f version=1.0.0
+
+# 查看运行状态
+gh run list --workflow mp-upload.yml --limit 1
+```
+
+机制与前提：
+
+- workflow 用 `npx miniprogram-ci upload` 临时安装官方 CI 工具上传 `./miniprogram`，仓库保持零依赖。
+- 凭据走仓库 Secrets：`MP_APPID`（真实 AppID）+ `MP_PRIVATE_KEY`（mp 后台「开发管理 → 开发设置 → 小程序代码上传」下载的私钥全文）。私钥不落仓库，workflow 里临时写入 `private.key` 用完即弃。
+- mp 后台的代码上传 **IP 白名单必须关闭**（GitHub Actions 出口 IP 不固定，否则报 `errCode -10008 invalid ip`）。
+- 上传成功后代码进入 mp 后台「版本管理」的开发版本，**提交审核和全量发布仍需人工在 mp.weixin.qq.com 点击**，普通自研小程序没有开放接口可自动化这两步。
+
 ## 工程约定
 
 - 代码注释、commit message、文档一律中文（项目语言）；标识符英文。
