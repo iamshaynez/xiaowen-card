@@ -24,11 +24,77 @@
     style: 'paper',
     fontFamily: 'serif',
     fontSize: 56,
-    logo: null
+    logo: null,
+    logoDataURL: ''
   };
+
+  /* ---------- 输入持久化（localStorage，下次打开自动恢复） ---------- */
+
+  var STORE_KEY = 'xiaowen-card-settings-v1';
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        mode: state.mode,
+        style: state.style,
+        text: inpText.value,
+        sign1: inpSign1.value,
+        sign2: inpSign2.value,
+        brand: inpBrand.value,
+        fontFamily: state.fontFamily,
+        fontSize: state.fontSize,
+        logo: state.logoDataURL
+      }));
+    } catch (e) { /* 存储不可用（隐私模式等）时静默忽略 */ }
+  }
+
+  // Logo 压缩到 256px 以内的 PNG dataURL，避免超出 localStorage 容量
+  function compressLogo(img) {
+    try {
+      var c = document.createElement('canvas');
+      var s = Math.min(1, 256 / Math.max(img.width, img.height));
+      c.width = Math.max(1, Math.round(img.width * s));
+      c.height = Math.max(1, Math.round(img.height * s));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      return c.toDataURL('image/png');
+    } catch (e) { return ''; }
+  }
+
+  function restoreSettings() {
+    var s;
+    try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
+    if (!s) return;
+    if (s.mode === 'quote' || s.mode === 'long') state.mode = s.mode;
+    if (['paper', 'ink', 'cinnabar', 'vertical'].indexOf(s.style) > -1) state.style = s.style;
+    if (['serif', 'kai', 'hei', 'shan'].indexOf(s.fontFamily) > -1) state.fontFamily = s.fontFamily;
+    if (typeof s.fontSize === 'number') state.fontSize = Math.max(28, Math.min(88, s.fontSize));
+    if (typeof s.text === 'string' && s.text) inpText.value = s.text;
+    if (typeof s.sign1 === 'string') inpSign1.value = s.sign1;
+    if (typeof s.sign2 === 'string') inpSign2.value = s.sign2;
+    if (typeof s.brand === 'string') inpBrand.value = s.brand;
+    // 控件选中态
+    segMode.querySelectorAll('.seg-btn').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.mode === state.mode);
+    });
+    styleRow.querySelectorAll('.style-chip').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.style === state.style);
+    });
+    selFont.value = state.fontFamily;
+    rngSize.value = state.fontSize;
+    // Logo（压缩后的 dataURL）
+    if (typeof s.logo === 'string' && s.logo) {
+      state.logoDataURL = s.logo;
+      var img = new Image();
+      img.onload = function () { state.logo = img; render(); };
+      img.src = s.logo;
+      logoName.textContent = '已恢复上次 Logo';
+      btnClearLogo.hidden = false;
+    }
+  }
 
   function render() {
     outSize.textContent = state.fontSize;
+    saveSettings();
     CardRenderer.render(canvas, {
       mode: state.mode,
       style: state.style,
@@ -99,6 +165,7 @@
     var img = new Image();
     img.onload = function () {
       state.logo = img;
+      state.logoDataURL = compressLogo(img);
       logoName.textContent = file.name;
       btnClearLogo.hidden = false;
       render();
@@ -107,6 +174,7 @@
   });
   btnClearLogo.addEventListener('click', function () {
     state.logo = null;
+    state.logoDataURL = '';
     inpLogo.value = '';
     logoName.textContent = '';
     btnClearLogo.hidden = true;
@@ -146,7 +214,8 @@
     }, 'image/png');
   });
 
-  /* 初次渲染：等网络字体就绪，避免首屏回退字体 */
+  /* 初次渲染：先恢复上次输入，再等网络字体就绪，避免首屏回退字体 */
+  restoreSettings();
   render();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(render);
