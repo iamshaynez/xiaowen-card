@@ -1,10 +1,14 @@
 name: 小程序上传
 
-# 打 tag（v*）时自动上传小程序代码到微信后台「版本管理」，
+# 纯手动触发（workflow_dispatch），无任何自动触发条件。
+# 触发方式见 AGENTS.md「小程序发布」一节；
 # 上传后仍需在 mp.weixin.qq.com 手动「提交审核 → 发布」。
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 上传版本号，如 1.0.0
+        required: true
 
 jobs:
   upload:
@@ -26,14 +30,14 @@ jobs:
       - name: 上传小程序代码
         env:
           MP_APPID: ${{ secrets.MP_APPID }}
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ inputs.version }}
         run: |
           npx --yes miniprogram-ci upload \
             --pp ./miniprogram \
             --pkp ./private.key \
             --appid "$MP_APPID" \
-            --uv "${VERSION#v}" \
-            --ud "CI 自动上传 $VERSION" \
+            --uv "$VERSION" \
+            --ud "CI 手动上传 v$VERSION" \
             -r 1 \
             --enable-es6 true \
             --minify true
