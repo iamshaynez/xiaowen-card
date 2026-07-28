@@ -1,0 +1,43 @@
+name: 小程序上传
+
+# 纯手动触发（workflow_dispatch），无任何自动触发条件。
+# 触发方式见 AGENTS.md「小程序发布」一节；
+# 上传后仍需在 mp.weixin.qq.com 手动「提交审核 → 发布」。
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 上传版本号，如 1.0.0
+        required: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 私钥来自 Secrets（MP_PRIVATE_KEY），不落仓库
+      - name: 写入上传密钥
+        run: echo "$MP_PRIVATE_KEY" > private.key
+        env:
+          MP_PRIVATE_KEY: ${{ secrets.MP_PRIVATE_KEY }}
+
+      # npx 临时安装 miniprogram-ci，仓库保持零依赖
+      - name: 上传小程序代码
+        env:
+          MP_APPID: ${{ secrets.MP_APPID }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          npx --yes miniprogram-ci upload \
+            --pp ./miniprogram \
+            --pkp ./private.key \
+            --appid "$MP_APPID" \
+            --uv "$VERSION" \
+            --ud "CI 手动上传 v$VERSION" \
+            -r 1 \
+            --enable-es6 true \
+            --minify true

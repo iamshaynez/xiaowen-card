@@ -1,6 +1,6 @@
 {
   "description": "小文卡片 · 微信小程序版（原生，无框架无构建工具）",
-  "appid": "touristappid",
+  "appid": "wx25fa1c2bb8cd753e",
   "compileType": "miniprogram",
   "libVersion": "3.4.0",
   "projectname": "xiaowen-card-miniprogram",
