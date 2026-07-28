@@ -52,7 +52,7 @@ const BASE = {
   fontSize: 56
 };
 
-const STYLES = ['paper', 'ink', 'cinnabar', 'vertical'];
+const STYLES = ['paper', 'ink', 'cinnabar', 'vertical', 'moon', 'indigo', 'tea', 'bamboo'];
 const MODES = ['quote', 'long'];
 
 /* ---------- 色彩纪律 ---------- */
@@ -68,7 +68,7 @@ test('双端 PALETTE 完全一致（色彩纪律同源）', () => {
 /* ---------- 全路径冒烟 ---------- */
 
 for (const [name, renderer] of RENDERERS) {
-  test(`${name}: 4 风格 × 2 模式全部可渲染，横排宽恒 1080`, () => {
+  test(`${name}: 8 风格 × 2 模式全部可渲染，横排宽恒 1080`, () => {
     for (const style of STYLES) {
       for (const mode of MODES) {
         const { canvas } = render(renderer, Object.assign({}, BASE, {
