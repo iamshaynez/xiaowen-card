@@ -20,13 +20,13 @@
 | Web | `web/js/card.js` | `CardRenderer.render(canvas, opts)`，直接改 `canvas.width/height`，挂在 `window` 上 |
 | 小程序 | `miniprogram/utils/card-renderer.js` | `render(canvasNode, opts)`，`module.exports` 导出，多了 `opts.scale`，返回 `{width, height}` 逻辑尺寸 |
 
-**改动规则：任何版式/配色/字体栈的修改必须双端同步。** 小程序版是从 web 版逐行移植的（PALETTE / THEMES / wrapLines / drawSeal / 横竖排布局一一对应）。只改一端会造成双端卡片不一致，这是本仓库最容易犯的错误。
+**改动规则：任何版式/配色/字体栈的修改必须双端同步。** 小程序版是从 web 版逐行移植的（PALETTE / THEMES / wrapLines / drawSeal / 横排布局与风格装饰一一对应）。只改一端会造成双端卡片不一致，这是本仓库最容易犯的错误。
 
 `opts` 字段（两端相同）：
 
 ```js
 {
-  style: 'paper' | 'ink' | 'cinnabar' | 'vertical' | 'moon' | 'indigo' | 'tea' | 'bamboo',  // 八种风格（后四种只换配色，复用横排版式）
+  style: 'paper' | 'ink' | 'cinnabar' | 'moon' | 'indigo' | 'tea' | 'bamboo' | 'songhua',  // 八种风格，共用横排版式，各有签名式装饰
   mode: 'quote' | 'long',      // 金句（居中大字+红引号）/ 长文（左对齐逐字换行）
   text, signature, brand,      // 正文 / 落款 / Banner 顶部文字
   fontFamily: 'serif'|'kai'|'hei'|('shan' 仅 web),
@@ -39,11 +39,12 @@
 排版逻辑要点：
 
 - 排版永远按 **1080 逻辑宽度**计算；web 直接按此出图，小程序预览用 `scale = css宽 × dpr / 1080` 映射，导出用 `scale = 1`（1080px 高清 PNG，两端一致）。
-- 画布高度是**先排版测量、后定尺寸**算出来的（内容自适应）；竖排墨风格例外，是**宽度随列数自适应**（每列固定 10 字）。
+- 画布高度是**先排版测量、后定尺寸**算出来的（内容自适应）。
 - 换行是**逐字 measureText**（`wrapLines`），适配 CJK 混排；按 `\n` 分段，空段保留为空行（段距）。
 - canvas 无 `letter-spacing`，Banner 宽字距用 `split('').join(' ')` hack，两端一致。
 - 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**（落款为空用「文」）。**上传 Logo 时由 Logo（`drawLogo`）替代印章位置**，Logo 不再出现在 Banner 区；Banner 头部只由 `brand` 文字触发。
-- 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。web 页面上是两个独立输入框（`inpSign1` / `inpSign2`，app.js 里用 `\n` 拼接），小程序端仍是一个多行 textarea。横排：单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。竖排：两行为两竖列，第一行在右、第二行在左，列底对齐，印章居中于列组下方。两端数值一致，改动需同步。
+- 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。web 页面上是两个独立输入框（`inpSign1` / `inpSign2`，app.js 里用 `\n` 拼接），小程序端仍是一个多行 textarea。单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。两端数值一致，改动需同步。
+- 每款风格有一款签名式装饰（在底色之后、头部之前用 fillRect 绘制，双端逐字一致）：冷灰笺素面无装饰 / 玄黑卡四角裁切角线（cropMarks）/ 朱砂签左侧冷漆红竖条（cinnabar）/ 月白笺上下青瓷双弦纹（strings）/ 黛蓝卡碑拓界格（grid）/ 茶烟笺底部陶器底足带（groundBand）/ 竹青笺左侧竹简双纤线（slips）/ 松花笺信笺横格（ruled）。
 
 ## 色彩纪律（不可违反）
 
@@ -56,7 +57,7 @@
 
 辅助灰阶：冷灰底上次级 `#5A544C`、三级 `#9A948C`、发丝线 `#D8D6D1`；玄黑底上亮字 `#DCD7CE`、注释 `#A39D93`、暗线 `#3A3530`。两端的 PALETTE 常量一字不差。
 
-八风格的主题色值集中定义在两端 PALETTE 常量中，除上表四角色与辅助灰阶外，后四种新风格各占一组（底色 / 主文字）：月白笺 `#E4ECEC` / `#2E3F46`、黛蓝卡 `#232D36` / `#D9E2E2`、茶烟笺 `#EFE9DD` / `#453B31`、竹青笺 `#E3E8DE` / `#37473B`（各自还带次级、三级、发丝线，见 PALETTE 的 moon*/indigo*/tea*/bamboo* 键）。纪律不变：主文字与底色保持足够对比，冷漆红仍是唯一点睛色（印章、引号、红点小记），永不铺底。
+八风格的主题色值集中定义在两端 PALETTE 常量中，除上表四角色与辅助灰阶外，后五种新风格各占一组（底色 / 主文字）：月白笺 `#E4ECEC` / `#2E3F46`、黛蓝卡 `#232D36` / `#D9E2E2`、茶烟笺 `#EFE9DD` / `#453B31`、竹青笺 `#E3E8DE` / `#37473B`、松花笺 `#F1EAD6` / `#463C30`（各自还带次级、三级、发丝线，见 PALETTE 的 moon*/indigo*/tea*/bamboo*/songhua* 键）。纪律不变：主文字与底色保持足够对比，冷漆红仍是唯一点睛色（印章、引号、红点小记），永不铺底。
 
 新增 UI 或卡片风格时，先对照这张表选色，不要引入表外颜色。
 
@@ -95,7 +96,7 @@ cd web && python3 -m http.server 8080        # 网页版
 # 小程序版：微信开发者工具导入 miniprogram/
 ```
 
-`test/render.test.js` 用记录型 stub ctx 驱动双端引擎，覆盖：色彩纪律（双端 PALETTE 一致）、4 风格 × 2 模式冒烟、内容自适应尺寸、单行/两行落款、竖排列序，以及最关键的**双端渲染序列一致性**（同一 opts 下两端 fillText 序列逐字节相同）。改渲染引擎后必须跑测试——双端版式数值不一致会被一致性用例直接抓住（它曾抓到两端 Banner 字距空格字符不同的真实 bug）。
+`test/render.test.js` 用记录型 stub ctx 驱动双端引擎，覆盖：色彩纪律（双端 PALETTE 一致）、8 风格 × 2 模式冒烟、内容自适应尺寸、单行/两行落款、Logo 替代印章，以及最关键的**双端渲染序列一致性**（同一 opts 下两端 fillText 序列逐字节相同）。改渲染引擎后必须跑测试——双端版式数值不一致会被一致性用例直接抓住（它曾抓到两端 Banner 字距空格字符不同的真实 bug）。
 
 ## 分支与发布（保护分支，仅 PR 合并）
 

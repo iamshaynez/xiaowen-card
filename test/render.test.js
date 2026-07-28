@@ -52,7 +52,7 @@ const BASE = {
   fontSize: 56
 };
 
-const STYLES = ['paper', 'ink', 'cinnabar', 'vertical', 'moon', 'indigo', 'tea', 'bamboo'];
+const STYLES = ['paper', 'ink', 'cinnabar', 'moon', 'indigo', 'tea', 'bamboo', 'songhua'];
 const MODES = ['quote', 'long'];
 
 /* ---------- 色彩纪律 ---------- */
@@ -76,9 +76,7 @@ for (const [name, renderer] of RENDERERS) {
           text: mode === 'long' ? BASE.text.repeat(10) : BASE.text
         }));
         assert.ok(canvas.width > 0 && canvas.height > 0, `${style}/${mode} 尺寸异常`);
-        if (style !== 'vertical') {
-          assert.strictEqual(canvas.width, 1080, `${style}/${mode} 横排宽度应为 1080`);
-        }
+        assert.strictEqual(canvas.width, 1080, `${style}/${mode} 横排宽度应为 1080`);
       }
     }
   });
@@ -91,12 +89,6 @@ for (const [name, renderer] of RENDERERS) {
     const short = render(renderer, Object.assign({}, BASE, { mode: 'long', text: '短。' }));
     const long = render(renderer, Object.assign({}, BASE, { mode: 'long', text: BASE.text.repeat(30) }));
     assert.ok(long.canvas.height > short.canvas.height, '长文卡片应更高');
-  });
-
-  test(`${name}: 竖排宽度随列数增长`, () => {
-    const short = render(renderer, Object.assign({}, BASE, { style: 'vertical', text: '人生如逆旅' }));
-    const long = render(renderer, Object.assign({}, BASE, { style: 'vertical', text: BASE.text.repeat(6) }));
-    assert.ok(long.canvas.width > short.canvas.width, '竖排卡片列多则更宽');
   });
 
   test(`${name}: 空正文兜底不崩溃`, () => {
@@ -141,24 +133,6 @@ for (const [name, renderer] of RENDERERS) {
   });
 }
 
-/* ---------- 竖排落款列序 ---------- */
-
-for (const [name, renderer] of RENDERERS) {
-  test(`${name}: 竖排两行落款第一行在右、第二行在左`, () => {
-    const { calls } = render(renderer, Object.assign({}, BASE, {
-      style: 'vertical',
-      text: '人生如逆旅',
-      signature: '甲辰\n小文'
-    }));
-    const first = calls.filter((c) => c.s === '辰');   // 第一行
-    const second = calls.filter((c) => c.s === '文');  // 第二行（注意「文」也可能是印章字）
-    assert.ok(first.length >= 1 && second.length >= 1);
-    // 竖排从右至左：第一行 x 坐标应大于第二行
-    assert.ok(first[0].x > second[second.length - 1].x || first[0].x > second[0].x,
-      '第一行落款列应在第二行右侧');
-  });
-}
-
 /* ---------- Logo 替代印章 ---------- */
 
 for (const [name, renderer] of RENDERERS) {
@@ -173,16 +147,6 @@ for (const [name, renderer] of RENDERERS) {
     assert.strictEqual(withLogo.canvas.height, noLogo.canvas.height, 'Logo 不应再占头部高度');
     // 落款为「小文 记」，印章字本应是单字「小」；有 Logo 时不应出现
     assert.strictEqual(withLogo.calls.filter((c) => c.s === '小').length, 0, '有 Logo 时不应再画印章字');
-  });
-
-  test(`${name}: 竖排有 Logo 时同样替代印章位`, () => {
-    const logo = { width: 100, height: 100 };
-    const { calls } = render(renderer, Object.assign({}, BASE, {
-      style: 'vertical', text: '人生如逆旅', signature: '', logo
-    }));
-    assert.strictEqual(calls.filter((c) => c.img).length, 1, '竖排 Logo 应只绘制一次');
-    // 空落款的兜底印章字是「文」；有 Logo 时不应出现
-    assert.strictEqual(calls.filter((c) => c.s === '文').length, 0, '竖排有 Logo 时不应再画印章字');
   });
 }
 

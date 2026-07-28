@@ -65,7 +65,7 @@
     try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { s = null; }
     if (!s) return;
     if (s.mode === 'quote' || s.mode === 'long') state.mode = s.mode;
-    if (['paper', 'ink', 'cinnabar', 'vertical', 'moon', 'indigo', 'tea', 'bamboo'].indexOf(s.style) > -1) state.style = s.style;
+    if (['paper', 'ink', 'cinnabar', 'moon', 'indigo', 'tea', 'bamboo', 'songhua'].indexOf(s.style) > -1) state.style = s.style;
     if (['serif', 'kai', 'hei', 'shan'].indexOf(s.fontFamily) > -1) state.fontFamily = s.fontFamily;
     if (typeof s.fontSize === 'number') state.fontSize = Math.max(28, Math.min(88, s.fontSize));
     if (typeof s.text === 'string' && s.text) inpText.value = s.text;

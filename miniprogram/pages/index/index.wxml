@@ -50,10 +50,10 @@
     <view class="section-title">为中文排版而生</view>
   </view>
   <view class="feature-list">
-    <view class="feature-item"><text class="feature-name">八种风格</text><text class="feature-desc">冷灰笺 · 玄黑卡 · 朱砂签 · 竖排墨 · 月白笺 · 黛蓝卡 · 茶烟笺 · 竹青笺，冷漆红只点睛，永不铺底。</text></view>
+    <view class="feature-item"><text class="feature-name">八种风格</text><text class="feature-desc">冷灰笺 · 玄黑卡 · 朱砂签 · 月白笺 · 黛蓝卡 · 茶烟笺 · 竹青笺 · 松花笺，冷漆红只点睛，永不铺底。</text></view>
     <view class="feature-item"><text class="feature-name">完整结构</text><text class="feature-desc">Logo、Banner、正文、固定落款、朱文印章，一应俱全。</text></view>
     <view class="feature-item"><text class="feature-name">字体字号</text><text class="feature-desc">宋体 / 楷体 / 黑体，字号滑杆即时预览。</text></view>
-    <view class="feature-item"><text class="feature-name">高清输出</text><text class="feature-desc">1080px 宽 PNG，逐字排版换行，竖排从右至左。</text></view>
+    <view class="feature-item"><text class="feature-name">高清输出</text><text class="feature-desc">1080px 宽 PNG，逐字排版换行，内容自适应高度。</text></view>
     <view class="feature-item"><text class="feature-name">保存到相册</text><text class="feature-desc">一键生成高清卡片图片，保存到系统相册随时分享。</text></view>
     <view class="feature-item"><text class="feature-name">双端一致</text><text class="feature-desc">网页版与微信小程序版共用同一套色彩与版式语言。</text></view>
   </view>
