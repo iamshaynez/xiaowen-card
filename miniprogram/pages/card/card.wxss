@@ -64,6 +64,9 @@
   min-height: 180rpx;
   line-height: 1.8;
 }
+.sign-textarea {
+  min-height: 110rpx;
+}
 
 /* 分段开关 */
 .seg {

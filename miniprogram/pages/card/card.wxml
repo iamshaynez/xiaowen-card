@@ -45,8 +45,14 @@
   </view>
 
   <view class="field">
-    <text class="label">落款（固定于卡片底部）</text>
-    <input class="input" value="{{signature}}" maxlength="20" bindinput="onSign" />
+    <text class="label">落款（固定于卡片底部，支持两行）</text>
+    <textarea
+      class="textarea sign-textarea"
+      value="{{signature}}"
+      placeholder="第一行：日期 / 地点（小字）&#10;第二行：署名"
+      maxlength="40"
+      bindinput="onSign"
+    />
   </view>
 
   <view class="field">

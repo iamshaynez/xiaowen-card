@@ -83,6 +83,17 @@
     return out;
   }
 
+  // 落款解析：支持两行（\n 分隔），上行多为日期/地点，下行为署名；最多取两行
+  function parseSignature(signature) {
+    var lines = String(signature || '').replace(/\r/g, '').split('\n');
+    var out = [];
+    for (var i = 0; i < lines.length; i++) {
+      var s = lines[i].trim();
+      if (s) out.push(s);
+    }
+    return out.slice(0, 2);
+  }
+
   // 朱文印章：冷漆红方印 + 奶白字（落款首字）
   function drawSeal(ctx, x, y, size, ch, theme) {
     ctx.save();
@@ -135,6 +146,10 @@
     var headH = hasHead ? 56 : 0;
     var sealSize = 84;
 
+    // 两行落款块更高，需预留纵向空间
+    var sigLines = parseSignature(o.signature);
+    var sigBlockH = sigLines.length > 1 ? 26 + 14 + 34 : 36;
+
     var top = 88;
     var y = top;
     if (hasHead) y += headH + 44;
@@ -143,7 +158,7 @@
     var bodyTop = y;
     y += bodyH;
     y += 72;                           // 正文与落款间距
-    var signH = Math.max(40, sealSize);
+    var signH = Math.max(sealSize, sigBlockH + 12);
     var H = y + signH + 84;
 
     return {
@@ -151,7 +166,7 @@
       bodyTop: bodyTop, bodyH: bodyH, lines: lines, lineH: lineH,
       paraGap: paraGap, bodySize: bodySize, weight: weight,
       quoteMarkH: quoteMarkH, signY: H - 84 - signH, sealSize: sealSize,
-      hasHead: hasHead
+      hasHead: hasHead, sigLines: sigLines
     };
   }
 
@@ -246,14 +261,23 @@
     ctx.stroke();
 
     var sealX = L.W - L.pad - L.sealSize;
-    if (o.signature) {
+    var midY = sy + L.sealSize / 2;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    if (L.sigLines.length === 1) {
       ctx.fillStyle = theme.sub;
       ctx.font = '400 36px ' + FONTS.serif;
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('—— ' + o.signature, sealX - 30, sy + L.sealSize / 2);
+      ctx.fillText('—— ' + L.sigLines[0], sealX - 30, midY);
+    } else if (L.sigLines.length > 1) {
+      // 两行落款：上行小字（日期/地点）用三级灰，下行署名用次级灰，垂直相对印章居中
+      ctx.fillStyle = theme.faint;
+      ctx.font = '400 26px ' + FONTS.serif;
+      ctx.fillText(L.sigLines[0], sealX - 30, midY - 20);
+      ctx.fillStyle = theme.sub;
+      ctx.font = '400 34px ' + FONTS.serif;
+      ctx.fillText(L.sigLines[1], sealX - 30, midY + 22);
     }
-    var sealCh = (o.signature || '文').replace(/^——\s*/, '').charAt(0) || '文';
+    var sealCh = (L.sigLines[0] || '文').charAt(0);
     drawSeal(ctx, sealX, sy, L.sealSize, sealCh, theme);
 
     return canvas;
@@ -312,20 +336,28 @@
       }
     }
 
-    // 落款：最左一列，竖排小字 + 印章
-    var signX = pad + signColW / 2 - 10;
-    var sign = String(o.signature || '').replace(/^——\s*/, '');
+    // 落款：最左一列（两行时两列，第一行在右、第二行在左，列底对齐），竖排小字 + 印章
+    var sigLines = parseSignature(o.signature);
     var sealSize = 72;
-    var signTextH = sign.length * Math.round(bodySize * 0.9);
+    var charStep = Math.round(bodySize * 0.9);
+    var colGap = Math.round(bodySize * 1.15);
     var signBottom = H - pad - sealSize - 24;
-    var signTop = signBottom - signTextH;
+    var groupCX = pad + signColW / 2 - 10;
 
     ctx.font = '400 ' + Math.round(bodySize * 0.72) + 'px ' + FONTS.serif;
     ctx.fillStyle = theme.sub;
-    for (var i = 0; i < sign.length; i++) {
-      ctx.fillText(sign[i], signX, signTop + i * Math.round(bodySize * 0.9) + bodySize * 0.36);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (var li = 0; li < sigLines.length; li++) {
+      var colX = groupCX + (sigLines.length - 1) / 2 * colGap - li * colGap;
+      var sChars = sigLines[li].split('');
+      var colTop = signBottom - sChars.length * charStep;
+      for (var i = 0; i < sChars.length; i++) {
+        ctx.fillText(sChars[i], colX, colTop + i * charStep + charStep / 2);
+      }
     }
-    drawSeal(ctx, signX - sealSize / 2, H - pad - sealSize, sealSize, sign.charAt(0) || '文', theme);
+    drawSeal(ctx, groupCX - sealSize / 2, H - pad - sealSize, sealSize,
+      (sigLines[0] || '文').charAt(0), theme);
 
     return canvas;
   }
