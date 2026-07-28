@@ -26,7 +26,7 @@
 
 ```js
 {
-  style: 'paper' | 'ink' | 'cinnabar' | 'vertical',  // 四种风格
+  style: 'paper' | 'ink' | 'cinnabar' | 'vertical' | 'moon' | 'indigo' | 'tea' | 'bamboo',  // 八种风格（后四种只换配色，复用横排版式）
   mode: 'quote' | 'long',      // 金句（居中大字+红引号）/ 长文（左对齐逐字换行）
   text, signature, brand,      // 正文 / 落款 / Banner 顶部文字
   fontFamily: 'serif'|'kai'|'hei'|('shan' 仅 web),
@@ -55,6 +55,8 @@
 | 奶白 cream | `#EDEAE3` | 玄黑底上的文字，**别用纯白** |
 
 辅助灰阶：冷灰底上次级 `#5A544C`、三级 `#9A948C`、发丝线 `#D8D6D1`；玄黑底上亮字 `#DCD7CE`、注释 `#A39D93`、暗线 `#3A3530`。两端的 PALETTE 常量一字不差。
+
+八风格的主题色值集中定义在两端 PALETTE 常量中，除上表四角色与辅助灰阶外，后四种新风格各占一组（底色 / 主文字）：月白笺 `#E4ECEC` / `#2E3F46`、黛蓝卡 `#232D36` / `#D9E2E2`、茶烟笺 `#EFE9DD` / `#453B31`、竹青笺 `#E3E8DE` / `#37473B`（各自还带次级、三级、发丝线，见 PALETTE 的 moon*/indigo*/tea*/bamboo* 键）。纪律不变：主文字与底色保持足够对比，冷漆红仍是唯一点睛色（印章、引号、红点小记），永不铺底。
 
 新增 UI 或卡片风格时，先对照这张表选色，不要引入表外颜色。
 

@@ -5,7 +5,7 @@
     把一句话，{'\n'}做成一张<text class="accent">好看</text>的卡片。
   </view>
   <view class="hero-sub">
-    金句卡片 · 长文卡片 —— Logo、Banner、正文、固定落款，字体字号随心调，四种优雅风格，一键保存到相册。
+    金句卡片 · 长文卡片 —— Logo、Banner、正文、固定落款，字体字号随心调，八种优雅风格，一键保存到相册。
   </view>
   <view class="hero-actions">
     <view class="btn btn-primary" bindtap="goCard">开始制作</view>
@@ -33,7 +33,7 @@
   <view class="channel-card">
     <view class="channel-tag">WEB</view>
     <view class="channel-name">网页版</view>
-    <view class="channel-desc">位于本仓库 web/ 目录，浏览器打开 index.html 即用，无需安装；支持 Logo 上传、四种风格、字体字号调节，生成后可下载 PNG 或复制到剪贴板。</view>
+    <view class="channel-desc">位于本仓库 web/ 目录，浏览器打开 index.html 即用，无需安装；支持 Logo 上传、八种风格、字体字号调节，生成后可下载 PNG 或复制到剪贴板。</view>
   </view>
   <view class="channel-card dark">
     <view class="channel-tag">MINI PROGRAM</view>
@@ -50,7 +50,7 @@
     <view class="section-title">为中文排版而生</view>
   </view>
   <view class="feature-list">
-    <view class="feature-item"><text class="feature-name">四种风格</text><text class="feature-desc">冷灰笺 · 玄黑卡 · 朱砂签 · 竖排墨，冷漆红只点睛，永不铺底。</text></view>
+    <view class="feature-item"><text class="feature-name">八种风格</text><text class="feature-desc">冷灰笺 · 玄黑卡 · 朱砂签 · 竖排墨 · 月白笺 · 黛蓝卡 · 茶烟笺 · 竹青笺，冷漆红只点睛，永不铺底。</text></view>
     <view class="feature-item"><text class="feature-name">完整结构</text><text class="feature-desc">Logo、Banner、正文、固定落款、朱文印章，一应俱全。</text></view>
     <view class="feature-item"><text class="feature-name">字体字号</text><text class="feature-desc">宋体 / 楷体 / 黑体，字号滑杆即时预览。</text></view>
     <view class="feature-item"><text class="feature-name">高清输出</text><text class="feature-desc">1080px 宽 PNG，逐字排版换行，竖排从右至左。</text></view>

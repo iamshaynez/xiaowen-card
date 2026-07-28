@@ -143,6 +143,18 @@
   background: var(--cream);
   box-shadow: 9rpx 0 0 var(--cream), 18rpx 0 0 var(--cream);
 }
+.sw-moon {
+  background: #E4ECEC;
+}
+.sw-indigo {
+  background: #232D36;
+}
+.sw-tea {
+  background: #EFE9DD;
+}
+.sw-bamboo {
+  background: #E3E8DE;
+}
 
 /* Logo */
 .logo-row {

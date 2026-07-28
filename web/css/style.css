@@ -154,6 +154,10 @@ input[type="range"] { width: 100%; accent-color: var(--red); }
 .sw-ink { background: var(--ink); }
 .sw-cinnabar { background: linear-gradient(90deg, var(--red) 3px, var(--paper) 3px); }
 .sw-vertical { background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 7px), var(--ink); background-color: var(--ink); }
+.sw-moon { background: #E4ECEC; }
+.sw-indigo { background: #232D36; }
+.sw-tea { background: #EFE9DD; }
+.sw-bamboo { background: #E3E8DE; }
 
 .logo-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .logo-btn {
