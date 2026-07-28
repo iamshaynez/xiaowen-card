@@ -1,14 +1,9 @@
 # Zeabur 静态托管（Caddy）缓存策略。
-# 注意：Zeabur 的 _headers 通配符（/*.js）实测不生效，必须用精确路径。
-# 静态站点无文件指纹（hash），一律 no-cache（每次协商校验，未变更返回 304），
-# 防止 HTML 与 JS/CSS 新旧混搭（曾导致线上预览空白的真实 bug）。
+# 实测结论：Zeabur 默认给 .js/.css 等静态资源 max-age=16070400（186 天），
+# 且该默认值优先级高于 _headers（通配符与精确路径均无法覆盖 js/css），
+# 只有 HTML 的 no-cache 能生效。js/css 的缓存正确性靠 index.html 引用上的
+# ?v= 查询串保证（改动即 bump，见 AGENTS.md），因此本文件只管 HTML。
 /
   Cache-Control: no-cache
 /index.html
-  Cache-Control: no-cache
-/js/card.js
-  Cache-Control: no-cache
-/js/app.js
-  Cache-Control: no-cache
-/css/style.css
   Cache-Control: no-cache
