@@ -1,7 +1,7 @@
 /**
  * 小文卡片 · 小程序 Canvas 渲染引擎
  * 移植自 web/js/card.js，保持双端版式与色彩语言一致。
- * 四种风格：冷灰笺 paper / 玄黑卡 ink / 朱砂签 cinnabar / 竖排墨 vertical
+ * 八种风格：冷灰笺 paper / 玄黑卡 ink / 朱砂签 cinnabar / 竖排墨 vertical / 月白笺 moon / 黛蓝卡 indigo / 茶烟笺 tea / 竹青笺 bamboo
  * 色彩纪律：冷漆红 #CE1432 仅点睛（≤5%），主底永远冷灰或玄黑，玄黑底上文字用奶白。
  *
  * 与浏览器版的差异：
@@ -21,7 +21,11 @@ var PALETTE = {
   hairOnPaper: '#D8D6D1',
   brightOnInk: '#DCD7CE',
   noteOnInk: '#A39D93',
-  lineOnInk: '#3A3530'
+  lineOnInk: '#3A3530',
+  moonBg: '#E4ECEC', moonFg: '#2E3F46', moonSub: '#5A6D75', moonFaint: '#93A4AA', moonLine: '#C4D2D4',
+  indigoBg: '#232D36', indigoFg: '#D9E2E2', indigoSub: '#8C9BA0', indigoLine: '#3A4750',
+  teaBg: '#EFE9DD', teaFg: '#453B31', teaSub: '#736557', teaFaint: '#A29889', teaLine: '#D9D0C1',
+  bambooBg: '#E3E8DE', bambooFg: '#37473B', bambooSub: '#66776A', bambooFaint: '#99A69B', bambooLine: '#C7D0C2'
 };
 
 var FONTS = {
@@ -48,6 +52,22 @@ var THEMES = {
     bg: PALETTE.ink, fg: PALETTE.cream, sub: PALETTE.noteOnInk,
     faint: PALETTE.noteOnInk, line: PALETTE.lineOnInk, sealFg: PALETTE.cream,
     vertical: true
+  },
+  moon: {
+    bg: PALETTE.moonBg, fg: PALETTE.moonFg, sub: PALETTE.moonSub,
+    faint: PALETTE.moonFaint, line: PALETTE.moonLine, sealFg: PALETTE.cream
+  },
+  indigo: {
+    bg: PALETTE.indigoBg, fg: PALETTE.indigoFg, sub: PALETTE.indigoSub,
+    faint: PALETTE.indigoSub, line: PALETTE.indigoLine, sealFg: PALETTE.cream
+  },
+  tea: {
+    bg: PALETTE.teaBg, fg: PALETTE.teaFg, sub: PALETTE.teaSub,
+    faint: PALETTE.teaFaint, line: PALETTE.teaLine, sealFg: PALETTE.cream
+  },
+  bamboo: {
+    bg: PALETTE.bambooBg, fg: PALETTE.bambooFg, sub: PALETTE.bambooSub,
+    faint: PALETTE.bambooFaint, line: PALETTE.bambooLine, sealFg: PALETTE.cream
   }
 };
 
@@ -374,7 +394,7 @@ function drawVertical(ctx, o, theme, L) {
  *
  * canvas: 通过 wx.createSelectorQuery().fields({node:true}) 取得的画布节点
  * opts = {
- *   style: 'paper'|'ink'|'cinnabar'|'vertical',
+ *   style: 'paper'|'ink'|'cinnabar'|'vertical'|'moon'|'indigo'|'tea'|'bamboo',
  *   mode: 'quote'|'long',
  *   text, signature, brand,
  *   fontFamily: 'serif'|'kai'|'hei',

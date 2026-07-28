@@ -6,7 +6,7 @@ var STORAGE_KEY = 'card-settings-v1';
 Page({
   data: {
     mode: 'quote',          // quote 金句 / long 长文
-    style: 'paper',         // paper / ink / cinnabar / vertical
+    style: 'paper',         // paper / ink / cinnabar / vertical / moon / indigo / tea / bamboo
     text: '人生如逆旅，我亦是行人。',
     signature: '小文 记',
     brand: '小文卡片 · 每日一句',
@@ -19,7 +19,11 @@ Page({
       { key: 'paper', name: '冷灰笺' },
       { key: 'ink', name: '玄黑卡' },
       { key: 'cinnabar', name: '朱砂签' },
-      { key: 'vertical', name: '竖排墨' }
+      { key: 'vertical', name: '竖排墨' },
+      { key: 'moon', name: '月白笺' },
+      { key: 'indigo', name: '黛蓝卡' },
+      { key: 'tea', name: '茶烟笺' },
+      { key: 'bamboo', name: '竹青笺' }
     ],
     fonts: [
       { key: 'serif', name: '宋体' },
@@ -60,7 +64,7 @@ Page({
     if (!s || typeof s !== 'object') return;
     var patch = {};
     if (s.mode === 'quote' || s.mode === 'long') patch.mode = s.mode;
-    if (['paper', 'ink', 'cinnabar', 'vertical'].indexOf(s.style) > -1) patch.style = s.style;
+    if (['paper', 'ink', 'cinnabar', 'vertical', 'moon', 'indigo', 'tea', 'bamboo'].indexOf(s.style) > -1) patch.style = s.style;
     if (['serif', 'kai', 'hei'].indexOf(s.fontFamily) > -1) patch.fontFamily = s.fontFamily;
     if (typeof s.fontSize === 'number') patch.fontSize = Math.max(28, Math.min(88, s.fontSize));
     if (typeof s.text === 'string' && s.text) patch.text = s.text;
