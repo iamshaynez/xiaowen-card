@@ -129,20 +129,6 @@
 .sw-cinnabar {
   background: linear-gradient(90deg, var(--red) 8rpx, var(--paper) 8rpx);
 }
-.sw-vertical {
-  background: var(--ink);
-  position: relative;
-}
-.sw-vertical::after {
-  content: "";
-  position: absolute;
-  left: 10rpx;
-  top: 8rpx;
-  bottom: 8rpx;
-  width: 3rpx;
-  background: var(--cream);
-  box-shadow: 9rpx 0 0 var(--cream), 18rpx 0 0 var(--cream);
-}
 .sw-moon {
   background: #E4ECEC;
 }
@@ -154,6 +140,9 @@
 }
 .sw-bamboo {
   background: #E3E8DE;
+}
+.sw-songhua {
+  background: #F1EAD6;
 }
 
 /* Logo */
