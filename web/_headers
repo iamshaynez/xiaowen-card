@@ -1,0 +1,13 @@
+# Cloudflare Pages 缓存策略：静态站点无文件指纹（hash），
+# 一律 no-cache（每次请求协商校验，未变更返回 304），
+# 防止 HTML 与 JS/CSS 新旧混搭（曾导致线上预览空白的真实 bug）。
+/*.html
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
+/*.js
+  Cache-Control: no-cache
+/js/*
+  Cache-Control: no-cache
+/css/*
+  Cache-Control: no-cache
