@@ -192,12 +192,10 @@ input[type="range"] { width: 100%; accent-color: var(--red); }
 }
 .channel-card h3 { font-family: var(--serif); font-size: 26px; font-weight: 600; letter-spacing: .1em; }
 .channel-card p { color: var(--sub); font-size: 15px; }
-.channel-card code { background: rgba(20,18,16,.06); padding: 2px 6px; border-radius: 3px; font-size: 13px; }
 .channel-tag { font-size: 11px; letter-spacing: .4em; color: var(--red); }
 .channel-card.dark { background: var(--ink); border-color: var(--ink); }
 .channel-card.dark h3 { color: var(--cream); }
 .channel-card.dark p { color: var(--ink-note); }
-.channel-card.dark code { background: rgba(237,234,227,.1); color: var(--ink-bright); }
 .mp-qr {
   margin-top: 8px; width: 120px; height: 120px; border-radius: 6px;
   border: 1px solid var(--ink-line); display: block;
