@@ -27,7 +27,7 @@
 - **朱砂签 cinnabar**：冷灰底，左侧一条冷漆红竖发丝
 - **竖排墨 vertical**：玄黑底，正文竖排、从右至左，落款与印章居左列底部
 
-卡片结构：Logo（可选）+ Banner → 发丝线 → 正文（金句模式带红色「」引号、居中大字；长文模式左对齐、逐字换行）→ 固定落款 + 朱文印章（取落款首行首字）。
+卡片结构：Banner → 发丝线 → 正文（金句模式带红色「」引号、居中大字；长文模式左对齐、逐字换行）→ 固定落款 + 朱文印章（取落款首行首字；上传 Logo 时由 Logo 替代印章位置）。
 
 落款支持两行（`\n` 分隔，最多取两行）：
 
@@ -62,5 +62,28 @@ miniprogram/          # 微信小程序版
 ## 双端差异
 
 - 网页版字体含网络字体（Noto Serif SC / 马善政毛笔体，走国内镜像 `fonts.loli.net`），小程序版使用系统字体栈（宋体 / 楷体 / 黑体）。
+- 落款输入：网页版为两个独立输入框（第一行小字 / 第二行署名），小程序版为一个多行文本框；两端渲染约定一致（`\n` 分隔、最多取两行）。
 - 小程序不支持复制图片到剪贴板，以「保存到相册」替代。
 - 修改卡片版式时请同步改动 `web/js/card.js` 与 `miniprogram/utils/card-renderer.js`。
+
+## 研发流程
+
+`main` 与 `dev` 均为保护分支，**只允许通过 Pull Request 合并**（CI 必须通过），禁止直接 push。
+
+```bash
+# 1. 日常开发：从 dev 拉特性分支
+git checkout dev && git pull
+git checkout -b feat/some-feature
+
+# 2. 本地验证后推分支，开 PR 合入 dev
+npm test                       # = node --test（零依赖，Node ≥ 18）
+gh pr create --base dev
+
+# 3. 发布：dev → main 的 PR 合并后，在 main 上打 tag
+gh pr create --base main --head dev
+git checkout main && git pull
+git tag v0.x.x && git push origin v0.x.x
+```
+
+- CI（`.github/workflows/ci.yml`）：对 `main`/`dev` 的 push 与 PR 运行 JS 语法检查 + `node --test` 单元测试。
+- 单元测试在 `test/`（Node 内置 `node:test`，无第三方依赖），重点守护**双端渲染一致性**——同一输入下两端引擎的绘制序列必须完全相同。
