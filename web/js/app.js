@@ -4,7 +4,8 @@
 
   var canvas = document.getElementById('cardCanvas');
   var inpText = document.getElementById('inpText');
-  var inpSign = document.getElementById('inpSign');
+  var inpSign1 = document.getElementById('inpSign1');
+  var inpSign2 = document.getElementById('inpSign2');
   var inpBrand = document.getElementById('inpBrand');
   var inpLogo = document.getElementById('inpLogo');
   var btnClearLogo = document.getElementById('btnClearLogo');
@@ -32,7 +33,8 @@
       mode: state.mode,
       style: state.style,
       text: inpText.value,
-      signature: inpSign.value,
+      // 两个落款输入框合并为渲染引擎的两行落款约定（\n 分隔，空行会被忽略）
+      signature: inpSign1.value + '\n' + inpSign2.value,
       brand: inpBrand.value,
       fontFamily: state.fontFamily,
       fontSize: state.fontSize,
@@ -72,7 +74,7 @@
   });
 
   /* 文本输入 */
-  [inpText, inpSign, inpBrand].forEach(function (el) {
+  [inpText, inpSign1, inpSign2, inpBrand].forEach(function (el) {
     el.addEventListener('input', scheduleRender);
   });
 

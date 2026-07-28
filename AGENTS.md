@@ -31,7 +31,7 @@
   text, signature, brand,      // 正文 / 落款 / Banner 顶部文字
   fontFamily: 'serif'|'kai'|'hei'|('shan' 仅 web),
   fontSize: 28–88,
-  logo: 图片对象 | null,
+  logo: 图片对象 | null,       // 替代落款处印章（不在 Banner 区显示）
   scale: 1                     // 仅小程序：逻辑坐标→实际像素的缩放
 }
 ```
@@ -42,8 +42,8 @@
 - 画布高度是**先排版测量、后定尺寸**算出来的（内容自适应）；竖排墨风格例外，是**宽度随列数自适应**（每列固定 10 字）。
 - 换行是**逐字 measureText**（`wrapLines`），适配 CJK 混排；按 `\n` 分段，空段保留为空行（段距）。
 - canvas 无 `letter-spacing`，Banner 宽字距用 `split('').join(' ')` hack，两端一致。
-- 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**（落款为空用「文」）。
-- 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。横排：单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。竖排：两行为两竖列，第一行在右、第二行在左，列底对齐，印章居中于列组下方。两端数值一致，改动需同步。
+- 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**（落款为空用「文」）。**上传 Logo 时由 Logo（`drawLogo`）替代印章位置**，Logo 不再出现在 Banner 区；Banner 头部只由 `brand` 文字触发。
+- 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。web 页面上是两个独立输入框（`inpSign1` / `inpSign2`，app.js 里用 `\n` 拼接），小程序端仍是一个多行 textarea。横排：单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。竖排：两行为两竖列，第一行在右、第二行在左，列底对齐，印章居中于列组下方。两端数值一致，改动需同步。
 
 ## 色彩纪律（不可违反）
 

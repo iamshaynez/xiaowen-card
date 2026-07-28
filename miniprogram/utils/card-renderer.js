@@ -146,7 +146,7 @@ function layoutHorizontal(ctx, o) {
 
   var quoteMarkH = isQuote ? Math.round(bodySize * 1.5) : 0;
 
-  var hasHead = !!(o.logo || o.brand);
+  var hasHead = !!o.brand;
   var headH = hasHead ? 56 : 0;
   var sealSize = 84;
 
@@ -188,13 +188,9 @@ function drawHorizontal(ctx, o, theme, L) {
   var x0 = L.pad;
   var y = L.top;
 
-  /* 头部：Logo + Banner */
+  /* 头部：Banner（Logo 不在此处，见落款处） */
   if (L.hasHead) {
     var hx = x0;
-    if (o.logo) {
-      drawLogo(ctx, o.logo, hx, y, 56);
-      hx += 56 + 22;
-    }
     if (o.brand) {
       ctx.fillStyle = theme.faint;
       ctx.font = '400 30px ' + FONTS.serif;
@@ -250,7 +246,7 @@ function drawHorizontal(ctx, o, theme, L) {
     ctx.fillText('」', L.W - L.pad, cy - L.lineH + L.bodySize * 0.4);
   }
 
-  /* 落款行：左发丝短线 + 右落款 + 印章 */
+  /* 落款行：左发丝短线 + 右落款 + 印章（有 Logo 时 Logo 替代印章） */
   var sy = L.signY;
   ctx.strokeStyle = theme.line;
   ctx.lineWidth = 1;
@@ -276,8 +272,12 @@ function drawHorizontal(ctx, o, theme, L) {
     ctx.font = '400 34px ' + FONTS.serif;
     ctx.fillText(L.sigLines[1], sealX - 30, midY + 22);
   }
-  var sealCh = (L.sigLines[0] || '文').charAt(0);
-  drawSeal(ctx, sealX, sy, L.sealSize, sealCh, theme);
+  if (o.logo) {
+    drawLogo(ctx, o.logo, sealX, sy, L.sealSize);
+  } else {
+    var sealCh = (L.sigLines[0] || '文').charAt(0);
+    drawSeal(ctx, sealX, sy, L.sealSize, sealCh, theme);
+  }
 }
 
 /* ---------- 竖排布局（从右至左） ---------- */
@@ -359,8 +359,12 @@ function drawVertical(ctx, o, theme, L) {
       ctx.fillText(sChars[i], colX, colTop + i * charStep + charStep / 2);
     }
   }
-  drawSeal(ctx, groupCX - sealSize / 2, H - pad - sealSize, sealSize,
-    (sigLines[0] || '文').charAt(0), theme);
+  if (o.logo) {
+    drawLogo(ctx, o.logo, groupCX - sealSize / 2, H - pad - sealSize, sealSize);
+  } else {
+    drawSeal(ctx, groupCX - sealSize / 2, H - pad - sealSize, sealSize,
+      (sigLines[0] || '文').charAt(0), theme);
+  }
 }
 
 /* ---------- 入口 ---------- */
@@ -375,7 +379,7 @@ function drawVertical(ctx, o, theme, L) {
  *   text, signature, brand,
  *   fontFamily: 'serif'|'kai'|'hei',
  *   fontSize: number,
- *   logo: Image|null,        // canvas.createImage() 且已 onload
+ *   logo: Image|null,        // canvas.createImage() 且已 onload；替代落款处的朱文印章（不出现在 Banner 区）
  *   scale: number            // 画布实际像素 / 逻辑像素（预览传 css宽*dpr/1080，导出传 1）
  * }
  * 返回 { width, height }（逻辑像素，宽恒为 1080，竖排风格除外）
