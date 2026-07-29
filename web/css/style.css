@@ -204,6 +204,7 @@ input[type="range"] { width: 100%; accent-color: var(--red); }
   margin-top: 8px; width: 120px; height: 120px; border-radius: 6px;
   border: 1px solid var(--ink-line); display: block;
 }
+.channel-card.dark p.mp-status { margin-top: -4px; font-size: 12px; letter-spacing: .1em; color: var(--ink-note); }
 
 /* ============ FEATURES ============ */
 .features { max-width: 1120px; margin: 0 auto; padding: 100px 24px; border-top: 1px solid var(--hair); }
