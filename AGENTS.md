@@ -77,7 +77,7 @@
 - **两块画布**：可见的 `#cardCanvas`（预览，dpr 适配）+ 离屏 `#exportCanvas`（`position:fixed; left:-2000px`，scale=1 导出）。
 - Logo 必须用 **每个画布各自的 `canvas.createImage()`** 创建（不能跨画布复用 Image），`card.js` 里按 key 缓存（`_logoImgs`）。
 - 异步渲染用序号 `_seq` 丢弃过期结果（Logo onload 晚到时防串图）。
-- 导出链：`canvas.toTempFilePath → wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。
+- 导出链：`wx.canvasToTempFilePath（传节点）→ wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。**Canvas 2D 节点自身没有 `toTempFilePath` 方法**（那是小游戏接口），小程序必须 `wx.canvasToTempFilePath({ canvas: node })`。
 - **保存属隐私接口**（微信隐私新规，`saveImageToPhotosAlbum` 对应「相册（仅写入）权限」）：mp 后台《用户隐私保护指引》必须声明该权限，否则真机报 `fail api scope is not declared in the privacy agreement`（errno 112）；用户未同意隐私授权时报 `fail privacy permission is not authorized`。`card.js` 的 `_handleSaveFail` 按 errMsg 分流：privacy 类失败用 `wx.requirePrivacyAuthorize` 拉隐私弹窗、同意后自动重试保存；`__usePrivacyCheck__: true`（app.json）让开发者工具同样模拟隐私校验。选 Logo 的 `wx.chooseMedia` 也受隐私协议管（「收集你选中的照片或视频信息」），后台声明时要一并勾上。声明入口有两个（[官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/)）：已发布版本走「账号设置 → 服务内容声明 → 用户隐私保护指引」；**未发布过的小程序该入口不显示，须走「管理 → 版本管理 → 提交代码审核 → 信息填写页面」在提审时填写**，提审被拦截也在此入口更新。
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
 - 字体只用系统栈（serif / KaiTi / sans-serif），无 `shan`；要加网络字体需 `wx.loadFontFace`。
