@@ -78,6 +78,7 @@
 - Logo 必须用 **每个画布各自的 `canvas.createImage()`** 创建（不能跨画布复用 Image），`card.js` 里按 key 缓存（`_logoImgs`）。
 - 异步渲染用序号 `_seq` 丢弃过期结果（Logo onload 晚到时防串图）。
 - 导出链：`canvas.toTempFilePath → wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。
+- **保存属隐私接口**（微信隐私新规，`saveImageToPhotosAlbum` 对应「相册（仅写入）权限」）：mp 后台《用户隐私保护指引》必须声明该权限，否则真机报 `fail api scope is not declared in the privacy agreement`（errno 112）；用户未同意隐私授权时报 `fail privacy permission is not authorized`。`card.js` 的 `_handleSaveFail` 按 errMsg 分流：privacy 类失败用 `wx.requirePrivacyAuthorize` 拉隐私弹窗、同意后自动重试保存；`__usePrivacyCheck__: true`（app.json）让开发者工具同样模拟隐私校验。选 Logo 的 `wx.chooseMedia` 也受隐私协议管（「收集你选中的照片或视频信息」），后台声明时要一并勾上。
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
 - 字体只用系统栈（serif / KaiTi / sans-serif），无 `shan`；要加网络字体需 `wx.loadFontFace`。
 - 用户输入持久化在 `wx.setStorageSync`（key `card-settings-v1`），`renderPreview()` 里统一保存、`onLoad` 里 `restoreSettings()` 恢复。Logo 选择后经 `wx.saveFile` 转存为持久文件再存路径（临时路径重启会失效；文件被系统清理时 `getLogo` 兜底为无 Logo）。

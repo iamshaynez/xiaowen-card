@@ -265,6 +265,23 @@ Page({
 
   _handleSaveFail: function (err) {
     var msg = (err && err.errMsg) || '';
+    // 隐私协议类失败（微信隐私新规后 saveImageToPhotosAlbum 属隐私接口）：
+    // - 未在 mp 后台声明相册权限：fail api scope is not declared in the privacy agreement
+    // - 用户未同意隐私授权：fail privacy permission is not authorized
+    if (msg.indexOf('privacy') > -1) {
+      if (msg.indexOf('not declared') > -1) {
+        console.warn('[save] 相册权限未在《用户隐私保护指引》声明，请到 mp 后台配置', err);
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+        return;
+      }
+      // 拉起隐私授权弹窗，用户同意后自动重试保存
+      var that = this;
+      wx.requirePrivacyAuthorize({
+        success: function () { that.onSave(); },
+        fail: function () { /* 用户拒绝隐私授权，不提示 */ }
+      });
+      return;
+    }
     if (msg.indexOf('auth') > -1 || msg.indexOf('deny') > -1 || msg.indexOf('authorize') > -1) {
       wx.showModal({
         title: '需要相册权限',
@@ -278,6 +295,7 @@ Page({
     } else if (msg.indexOf('cancel') > -1) {
       // 用户取消，不提示
     } else {
+      console.warn('[save] saveImageToPhotosAlbum 未识别的失败原因', err);
       wx.showToast({ title: '保存失败，请重试', icon: 'none' });
     }
   }
