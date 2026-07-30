@@ -233,7 +233,9 @@ Page({
     this.getLogo('export', this.exportNode).then(function (logo) {
       // 导出：scale = 1，即 1080px 宽高清 PNG（与 web 版一致）
       CardRenderer.render(that.exportNode, that.collectOpts(logo, 1));
-      that.exportNode.toTempFilePath({
+      // 小程序导出画布用 wx.canvasToTempFilePath 传节点（节点自身无 toTempFilePath 方法，那是小游戏接口）
+      wx.canvasToTempFilePath({
+        canvas: that.exportNode,
         success: function (r) {
           wx.saveImageToPhotosAlbum({
             filePath: r.tempFilePath,
@@ -247,13 +249,15 @@ Page({
             }
           });
         },
-        fail: function () {
+        fail: function (err) {
           that._done();
+          console.warn('[save] canvasToTempFilePath 导出失败', err);
           wx.showToast({ title: '生成失败，请重试', icon: 'none' });
         }
       });
-    }).catch(function () {
+    }).catch(function (e) {
       that._done();
+      console.warn('[save] 渲染或 Logo 加载异常', e);
       wx.showToast({ title: '生成失败，请重试', icon: 'none' });
     });
   },
