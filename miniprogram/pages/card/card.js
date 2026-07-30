@@ -8,7 +8,8 @@ Page({
     mode: 'quote',          // quote 金句 / long 长文
     style: 'paper',         // paper / ink / cinnabar / moon / indigo / tea / bamboo / songhua
     text: '人生如逆旅，我亦是行人。',
-    signature: '小文 记',
+    sign1: '',                // 落款第一行：日期 / 地点（小字）
+    sign2: '小文 记',          // 落款第二行：署名
     brand: '小文卡片 · 每日一句',
     fontFamily: 'serif',    // serif 宋体 / kai 楷体 / hei 黑体
     fontSize: 56,
@@ -49,7 +50,8 @@ Page({
         mode: d.mode,
         style: d.style,
         text: d.text,
-        signature: d.signature,
+        sign1: d.sign1,
+        sign2: d.sign2,
         brand: d.brand,
         fontFamily: d.fontFamily,
         fontSize: d.fontSize,
@@ -68,7 +70,18 @@ Page({
     if (['serif', 'kai', 'hei'].indexOf(s.fontFamily) > -1) patch.fontFamily = s.fontFamily;
     if (typeof s.fontSize === 'number') patch.fontSize = Math.max(28, Math.min(88, s.fontSize));
     if (typeof s.text === 'string' && s.text) patch.text = s.text;
-    if (typeof s.signature === 'string') patch.signature = s.signature;
+    if (typeof s.sign1 === 'string') patch.sign1 = s.sign1;
+    if (typeof s.sign2 === 'string') patch.sign2 = s.sign2;
+    // 旧版本存的是合并的 signature（\n 分隔），迁移为两个输入框：单行归入署名行
+    if (patch.sign1 === undefined && patch.sign2 === undefined && typeof s.signature === 'string') {
+      var sp = s.signature.split('\n');
+      if (sp.length > 1) {
+        patch.sign1 = sp[0];
+        patch.sign2 = sp.slice(1).join('\n');
+      } else {
+        patch.sign2 = s.signature;
+      }
+    }
     if (typeof s.brand === 'string') patch.brand = s.brand;
     // 持久文件路径（wx.saveFile 保存），文件被系统清理时 getLogo 会兜底为无 Logo
     if (typeof s.logoPath === 'string' && s.logoPath) patch.logoPath = s.logoPath;
@@ -99,7 +112,8 @@ Page({
       style: d.style,
       mode: d.mode,
       text: d.text,
-      signature: d.signature,
+      // 两个落款输入框合并为渲染引擎的两行落款约定（\n 分隔，空行会被忽略）
+      signature: d.sign1 + '\n' + d.sign2,
       brand: d.brand,
       fontFamily: d.fontFamily,
       fontSize: d.fontSize,
@@ -171,8 +185,13 @@ Page({
     this.scheduleRender();
   },
 
-  onSign: function (e) {
-    this.setData({ signature: e.detail.value });
+  onSign1: function (e) {
+    this.setData({ sign1: e.detail.value });
+    this.scheduleRender();
+  },
+
+  onSign2: function (e) {
+    this.setData({ sign2: e.detail.value });
     this.scheduleRender();
   },
 

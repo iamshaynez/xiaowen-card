@@ -52,7 +52,6 @@
 .textarea,
 .input {
   width: 100%;
-  padding: 20rpx 24rpx;
   border: 1rpx solid var(--hair);
   border-radius: 8rpx;
   background: #fff;
@@ -62,10 +61,24 @@
 }
 .textarea {
   min-height: 180rpx;
+  padding: 20rpx 24rpx;
   line-height: 1.8;
 }
-.sign-textarea {
-  min-height: 110rpx;
+/* 微信 input 默认高度固定，上下 padding 会挤压文字，须显式定高 */
+.input {
+  height: 76rpx;
+  line-height: 76rpx;
+  padding: 0 24rpx;
+}
+
+/* 一行两栏（落款两行输入框，对齐网页版 field-row） */
+.field-row {
+  display: flex;
+  gap: 24rpx;
+}
+.field-row .field {
+  flex: 1;
+  min-width: 0;
 }
 
 /* 分段开关 */
