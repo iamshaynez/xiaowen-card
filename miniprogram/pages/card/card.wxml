@@ -44,15 +44,15 @@
     />
   </view>
 
-  <view class="field">
-    <text class="label">落款（固定于卡片底部，支持两行）</text>
-    <textarea
-      class="textarea sign-textarea"
-      value="{{signature}}"
-      placeholder="第一行：日期 / 地点（小字）&#10;第二行：署名"
-      maxlength="40"
-      bindinput="onSign"
-    />
+  <view class="field-row">
+    <view class="field">
+      <text class="label">落款 · 第一行</text>
+      <input class="input" value="{{sign1}}" maxlength="20" placeholder="日期 / 地点" bindinput="onSign1" />
+    </view>
+    <view class="field">
+      <text class="label">落款 · 第二行</text>
+      <input class="input" value="{{sign2}}" maxlength="20" placeholder="署名" bindinput="onSign2" />
+    </view>
   </view>
 
   <view class="field">
@@ -61,7 +61,7 @@
   </view>
 
   <view class="field">
-    <text class="label">Logo（可选）</text>
+    <text class="label">Logo（可选，替代落款处印章）</text>
     <view class="logo-row">
       <view class="logo-btn" bindtap="onChooseLogo">{{logoPath ? '更换 Logo' : '选择 Logo'}}</view>
       <view wx:if="{{logoPath}}" class="logo-clear" bindtap="onClearLogo">移除</view>
