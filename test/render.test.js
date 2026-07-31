@@ -25,13 +25,16 @@ const RENDERERS = [
 
 function mkCtx(calls) {
   const noop = () => {};
+  const state = { font: '', fillStyle: '' };
   return new Proxy({
     measureText: (s) => ({ width: String(s).length * 40 }),
-    fillText: (s, x, y) => calls.push({ s: String(s), x, y }),
+    fillText: (s, x, y) => calls.push({ s: String(s), x, y, font: state.font, fillStyle: state.fillStyle }),
+    fillRect: (x, y, w, h) => calls.push({ s: '[rect]', rect: true, x, y, w, h, fillStyle: state.fillStyle }),
+    fill: () => calls.push({ s: '[fill]', fill: true, fillStyle: state.fillStyle }),
     drawImage: (img, x, y) => calls.push({ img: true, s: '[image]', x, y })
   }, {
     get(t, k) { return k in t ? t[k] : noop; },
-    set() { return true; }
+    set(t, k, v) { if (k === 'font' || k === 'fillStyle') state[k] = v; return true; }
   });
 }
 
@@ -157,6 +160,65 @@ for (const [name, renderer] of RENDERERS) {
   });
 }
 
+/* ---------- 行内 Markdown ---------- */
+
+const MD_TEXT = '这是**粗体**和*斜体*与`代码`加[链接](https://card.xiaowenz.com)。';
+
+for (const [name, renderer] of RENDERERS) {
+  test(`${name}: 行内 Markdown 标记符号不进入绘制文本`, () => {
+    for (const mode of MODES) {
+      const { calls } = render(renderer, Object.assign({}, BASE, { mode, text: MD_TEXT }));
+      const texts = calls.filter((c) => !c.rect && !c.img).map((c) => c.s).join('');
+      assert.ok(texts.indexOf('**') === -1, `${mode} 不应绘制 ** 标记`);
+      assert.ok(texts.indexOf('`') === -1, `${mode} 不应绘制 \` 标记`);
+      assert.ok(texts.indexOf('](') === -1 && texts.indexOf('card.xiaowenz.com') === -1, `${mode} 不应绘制链接标记与 url`);
+      for (const frag of ['粗体', '斜体', '代码', '链接']) {
+        assert.ok(texts.indexOf(frag) > -1, `${mode} 应绘制「${frag}」`);
+      }
+    }
+  });
+
+  test(`${name}: 粗体提升字重并着冷漆红（long 600 / quote 700），斜体加 italic`, () => {
+    const long = render(renderer, Object.assign({}, BASE, { mode: 'long', text: MD_TEXT }));
+    const boldLong = long.calls.filter((c) => c.s === '粗体');
+    assert.strictEqual(boldLong.length, 1);
+    assert.ok(boldLong[0].font.indexOf('600 ') === 0, `long 粗体应为 600 字重，实际 ${boldLong[0].font}`);
+    assert.strictEqual(boldLong[0].fillStyle, webRenderer.PALETTE.red, '粗体应着冷漆红');
+    // 粗体之后的普通 run 应恢复主文字色
+    const afterBold = long.calls.filter((c) => c.s === '和');
+    assert.strictEqual(afterBold.length, 1);
+    assert.strictEqual(afterBold[0].fillStyle, webRenderer.PALETTE.ink, '粗体后应恢复主文字色');
+    const italic = long.calls.filter((c) => c.s === '斜体');
+    assert.strictEqual(italic.length, 1);
+    assert.ok(italic[0].font.indexOf('italic ') === 0, `斜体应带 italic，实际 ${italic[0].font}`);
+
+    const quote = render(renderer, Object.assign({}, BASE, { mode: 'quote', text: MD_TEXT }));
+    const boldQuote = quote.calls.filter((c) => c.s === '粗体');
+    assert.strictEqual(boldQuote.length, 1);
+    assert.ok(boldQuote[0].font.indexOf('700 ') === 0, `quote 粗体应为 700 字重，实际 ${boldQuote[0].font}`);
+  });
+
+  test(`${name}: 行内代码画浅底 chip，链接画下划线（发色均在主题色板内）`, () => {
+    const { calls } = render(renderer, Object.assign({}, BASE, { mode: 'long', text: MD_TEXT }));
+    const code = calls.filter((c) => c.s === '代码');
+    assert.strictEqual(code.length, 1);
+    // chip：主题发丝线色（paper 主题 hairOnPaper）的圆角矩形填充（roundRect + fill）
+    const chips = calls.filter((c) => c.fill && c.fillStyle === webRenderer.PALETTE.hairOnPaper);
+    assert.ok(chips.length >= 1, '应有代码 chip 底块');
+    // 下划线：主文字色、细高的矩形，宽度与链接文字一致
+    const link = calls.filter((c) => c.s === '链接');
+    assert.strictEqual(link.length, 1);
+    const underlines = calls.filter((c) => c.rect && c.fillStyle === webRenderer.PALETTE.ink && c.h <= 4 && c.w === 2 * 40);
+    assert.strictEqual(underlines.length, 1, '链接文字下应有一条下划线');
+  });
+
+  test(`${name}: 未闭合的 Markdown 标记按字面文本渲染`, () => {
+    const { calls } = render(renderer, Object.assign({}, BASE, { mode: 'long', text: '这是**未闭合的标记[链](缺' }));
+    const texts = calls.filter((c) => !c.rect && !c.img).map((c) => c.s).join('');
+    assert.ok(texts.indexOf('这是**未闭合的标记[链](缺') > -1, '未闭合标记应原样绘制');
+  });
+}
+
 /* ---------- 双端一致性 ---------- */
 
 test('双端渲染序列完全一致（同一 opts 同一 fillText 序列）', () => {
@@ -175,6 +237,28 @@ test('双端渲染序列完全一致（同一 opts 同一 fillText 序列）', (
         a.calls.map((c) => c.s),
         b.calls.map((c) => c.s),
         `${style}/${mode} 绘制文本序列不一致`
+      );
+    }
+  }
+});
+
+test('双端一致性：含行内 Markdown 的正文（文本序列 + 字体风格前缀）', () => {
+  for (const style of STYLES) {
+    for (const mode of MODES) {
+      const opts = Object.assign({}, BASE, { style, mode, text: MD_TEXT });
+      const a = render(webRenderer, opts);
+      const b = render(mpRenderer, opts);
+      assert.strictEqual(a.canvas.height, b.canvas.height, `${style}/${mode} 高度不一致`);
+      assert.deepStrictEqual(
+        a.calls.map((c) => c.s),
+        b.calls.map((c) => c.s),
+        `${style}/${mode} 绘制序列不一致`
+      );
+      // 两端字体栈不同，只比较 px 前的风格/字重前缀（italic、400/600/700）
+      assert.deepStrictEqual(
+        a.calls.map((c) => (c.font || '').split('px')[0]),
+        b.calls.map((c) => (c.font || '').split('px')[0]),
+        `${style}/${mode} 字体风格前缀序列不一致`
       );
     }
   }
