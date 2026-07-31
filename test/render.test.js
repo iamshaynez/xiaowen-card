@@ -125,11 +125,18 @@ for (const [name, renderer] of RENDERERS) {
     assert.strictEqual(sigTexts(calls, '三').length, 0);
   });
 
-  test(`${name}: 空落款不绘制落款文字但仍画印章`, () => {
-    const { calls } = render(renderer, Object.assign({}, BASE, { signature: '' }));
+  test(`${name}: 空落款且无 Logo 时整行落款与印章都不绘制、不占高度`, () => {
+    const { calls, canvas } = render(renderer, Object.assign({}, BASE, { signature: '', brand: '' }));
+    const withSign = render(renderer, Object.assign({}, BASE, { brand: '' }));
     assert.strictEqual(sigTexts(calls, '——').length, 0);
-    // 印章字符「文」仍应出现（兜底）
-    assert.ok(sigTexts(calls, '文').length >= 1, '空落款时应绘制兜底印章字');
+    assert.strictEqual(calls.filter((c) => c.s === '文').length, 0, '空落款时不应再画兜底印章字「文」');
+    assert.ok(canvas.height < withSign.canvas.height, '空落款时不应再占落款行高度');
+  });
+
+  test(`${name}: 空落款但有 Logo 时仍画 Logo`, () => {
+    const logo = { width: 100, height: 100 };
+    const { calls } = render(renderer, Object.assign({}, BASE, { signature: '', brand: '', logo }));
+    assert.strictEqual(calls.filter((c) => c.img).length, 1);
   });
 }
 

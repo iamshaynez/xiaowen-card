@@ -175,6 +175,8 @@
     // 两行落款块更高，需预留纵向空间
     var sigLines = parseSignature(o.signature);
     var sigBlockH = sigLines.length > 1 ? 26 + 14 + 34 : 36;
+    // 落款为空且无 Logo 时，整个落款行（发丝线 + 落款 + 印章）不绘制也不占高度
+    var hasSign = sigLines.length > 0 || !!o.logo;
 
     var top = 88;
     var y = top;
@@ -184,7 +186,7 @@
     var bodyTop = y;
     y += bodyH;
     y += 72;                           // 正文与落款间距
-    var signH = Math.max(sealSize, sigBlockH + 12);
+    var signH = hasSign ? Math.max(sealSize, sigBlockH + 12) : 0;
     var H = y + signH + 84;
 
     return {
@@ -192,7 +194,7 @@
       bodyTop: bodyTop, bodyH: bodyH, lines: lines, lineH: lineH,
       paraGap: paraGap, bodySize: bodySize, weight: weight,
       quoteMarkH: quoteMarkH, signY: H - 84 - signH, sealSize: sealSize,
-      hasHead: hasHead, sigLines: sigLines
+      hasHead: hasHead, hasSign: hasSign, sigLines: sigLines
     };
   }
 
@@ -328,37 +330,39 @@
       ctx.fillText('」', L.W - L.pad, cy - L.lineH + L.bodySize * 0.4);
     }
 
-    /* 落款行：左发丝短线 + 右落款 + 印章（有 Logo 时 Logo 替代印章） */
-    var sy = L.signY;
-    ctx.strokeStyle = theme.line;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x0, sy + L.sealSize / 2);
-    ctx.lineTo(x0 + 120, sy + L.sealSize / 2);
-    ctx.stroke();
+    /* 落款行：左发丝短线 + 右落款 + 印章（有 Logo 时 Logo 替代印章；落款为空且无 Logo 时整行不绘制） */
+    if (L.hasSign) {
+      var sy = L.signY;
+      ctx.strokeStyle = theme.line;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x0, sy + L.sealSize / 2);
+      ctx.lineTo(x0 + 120, sy + L.sealSize / 2);
+      ctx.stroke();
 
-    var sealX = L.W - L.pad - L.sealSize;
-    var midY = sy + L.sealSize / 2;
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    if (L.sigLines.length === 1) {
-      ctx.fillStyle = theme.sub;
-      ctx.font = '400 36px ' + FONTS.serif;
-      ctx.fillText('—— ' + L.sigLines[0], sealX - 30, midY);
-    } else if (L.sigLines.length > 1) {
-      // 两行落款：上行小字（日期/地点）用三级灰，下行署名用次级灰，垂直相对印章居中
-      ctx.fillStyle = theme.faint;
-      ctx.font = '400 26px ' + FONTS.serif;
-      ctx.fillText(L.sigLines[0], sealX - 30, midY - 20);
-      ctx.fillStyle = theme.sub;
-      ctx.font = '400 34px ' + FONTS.serif;
-      ctx.fillText(L.sigLines[1], sealX - 30, midY + 22);
-    }
-    if (o.logo) {
-      drawLogo(ctx, o.logo, sealX, sy, L.sealSize);
-    } else {
-      var sealCh = (L.sigLines[0] || '文').charAt(0);
-      drawSeal(ctx, sealX, sy, L.sealSize, sealCh, theme);
+      var sealX = L.W - L.pad - L.sealSize;
+      var midY = sy + L.sealSize / 2;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      if (L.sigLines.length === 1) {
+        ctx.fillStyle = theme.sub;
+        ctx.font = '400 36px ' + FONTS.serif;
+        ctx.fillText('—— ' + L.sigLines[0], sealX - 30, midY);
+      } else if (L.sigLines.length > 1) {
+        // 两行落款：上行小字（日期/地点）用三级灰，下行署名用次级灰，垂直相对印章居中
+        ctx.fillStyle = theme.faint;
+        ctx.font = '400 26px ' + FONTS.serif;
+        ctx.fillText(L.sigLines[0], sealX - 30, midY - 20);
+        ctx.fillStyle = theme.sub;
+        ctx.font = '400 34px ' + FONTS.serif;
+        ctx.fillText(L.sigLines[1], sealX - 30, midY + 22);
+      }
+      if (o.logo) {
+        drawLogo(ctx, o.logo, sealX, sy, L.sealSize);
+      } else {
+        // hasSign 保证此处 sigLines 非空（无落款时只有 Logo 才会走到这）
+        drawSeal(ctx, sealX, sy, L.sealSize, L.sigLines[0].charAt(0), theme);
+      }
     }
 
     return canvas;
