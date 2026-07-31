@@ -35,7 +35,7 @@
   <view class="channel-card">
     <view class="channel-tag">WEB</view>
     <view class="channel-name">网页版</view>
-    <view class="channel-desc">位于本仓库 web/ 目录，浏览器打开 index.html 即用，无需安装；支持 Logo 上传、八种风格、字体字号调节，生成后可下载 PNG 或复制到剪贴板。</view>
+    <view class="channel-desc">浏览器打开 card.xiaowenz.com 即用，无需安装。Logo、Banner、正文、落款随手可调，八种风格与字体字号即时预览；生成后一键下载 PNG，或直接复制图片，贴进任何地方。</view>
   </view>
   <view class="channel-card dark">
     <view class="channel-tag">MINI PROGRAM</view>
