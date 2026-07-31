@@ -6,7 +6,8 @@
   <view class="preview-note">预览即所得 · 保存为 1080px 宽高清 PNG</view>
 </view>
 
-<!-- 控制面板（padding-top 顶出固定预览区的高度） -->
+<!-- 控制面板（页面不滚动，面板在 scroll-view 内滚动；padding-top 让出吸顶预览区） -->
+<scroll-view scroll-y class="panel-scroll">
 <view class="panel" style="padding-top:{{previewH}}px">
   <view class="field">
     <text class="label">卡片类型</text>
@@ -96,6 +97,7 @@
     />
   </view>
 </view>
+</scroll-view>
 
 <!-- 底部操作栏 -->
 <view class="bottom-bar">
