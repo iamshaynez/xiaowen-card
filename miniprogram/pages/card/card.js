@@ -3,6 +3,16 @@ var CardRenderer = require('../../utils/card-renderer.js');
 // 用户输入持久化（wx.setStorageSync，下次打开自动恢复）
 var STORAGE_KEY = 'card-settings-v1';
 
+// 网络子集字体（GB2312 单文件 WOFF，见 fonts/README.md）。
+// 引用本仓库 fonts/ 目录，经 jsdmirror 镜像（有 ICP 备案、CORS 放行）分发；
+// 真机需在 mp 后台把 cdn.jsdmirror.com 配置为 downloadFile 合法域名。
+// 黑体用系统黑体，不在此表，无需下载。
+var FONT_CDN = 'https://cdn.jsdmirror.com/gh/iamshaynez/xiaowen-card@main/fonts/';
+var WEB_FONTS = {
+  serif: { family: 'XW Serif', file: 'xw-serif.woff' },
+  kai: { family: 'XW Kai', file: 'xw-kai.woff' }
+};
+
 Page({
   data: {
     mode: 'quote',          // quote 金句 / long 长文
@@ -37,8 +47,30 @@ Page({
     this._seq = 0;          // 渲染序号，丢弃过期的异步结果
     this._timer = null;     // 输入防抖
     this._logoImgs = {};    // 每个画布各自的 Logo Image 缓存
+    this._fontReady = {};   // 已加载成功的网络字体
     this._lastH = 0;
     this.restoreSettings();
+  },
+
+  /* ---------- 网络字体 ---------- */
+
+  // 按需加载网络字体进 canvas；resolve(true/false) 表示是否可用，永不 reject
+  ensureFont: function (key) {
+    var def = WEB_FONTS[key];
+    if (!def) return Promise.resolve(true);   // 黑体用系统字体，无需下载
+    if (this._fontReady[key]) return Promise.resolve(true);
+    var that = this;
+    return new Promise(function (resolve) {
+      wx.loadFontFace({
+        family: def.family,
+        source: 'url("' + FONT_CDN + def.file + '")',
+        // canvas 是原生组件，必须带 native scope（默认仅 webview 生效）
+        scopes: ['webview', 'native'],
+        global: true,
+        success: function () { that._fontReady[key] = true; resolve(true); },
+        fail: function () { resolve(false); }
+      });
+    });
   },
 
   /* ---------- 输入持久化 ---------- */
@@ -101,6 +133,10 @@ Page({
         that.previewCssW = res[0].width;
         that.exportNode = res[1] && res[1].node;
         that.renderPreview();
+        // 恢复的网络字体静默补载：先用系统字体渲染，字体到位后再重绘一次
+        that.ensureFont(that.data.fontFamily).then(function (ok) {
+          if (ok && WEB_FONTS[that.data.fontFamily]) that.renderPreview();
+        });
       });
   },
 
@@ -176,8 +212,25 @@ Page({
   },
 
   onFont: function (e) {
-    this.setData({ fontFamily: e.currentTarget.dataset.font });
-    this.renderPreview();
+    var key = e.currentTarget.dataset.font;
+    if (key === this.data.fontFamily) return;
+    // 黑体或已加载的字体直接切换；未加载的网络字体先下载再切
+    if (!WEB_FONTS[key] || this._fontReady[key]) {
+      this.setData({ fontFamily: key });
+      this.renderPreview();
+      return;
+    }
+    var that = this;
+    wx.showLoading({ title: '字体加载中…', mask: true });
+    this.ensureFont(key).then(function (ok) {
+      wx.hideLoading();
+      if (!ok) {
+        // 加载失败不出错：仍切换选择，渲染栈自动回退系统字体，下次进入会重试
+        wx.showToast({ title: '字体加载失败，已回退系统字体', icon: 'none' });
+      }
+      that.setData({ fontFamily: key });
+      that.renderPreview();
+    });
   },
 
   onText: function (e) {

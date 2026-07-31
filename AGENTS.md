@@ -80,7 +80,7 @@
 - 导出链：`wx.canvasToTempFilePath（传节点）→ wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。**Canvas 2D 节点自身没有 `toTempFilePath` 方法**（那是小游戏接口），小程序必须 `wx.canvasToTempFilePath({ canvas: node })`。
 - **保存属隐私接口**（微信隐私新规，`saveImageToPhotosAlbum` 对应「相册（仅写入）权限」）：mp 后台《用户隐私保护指引》必须声明该权限，否则真机报 `fail api scope is not declared in the privacy agreement`（errno 112）；用户未同意隐私授权时报 `fail privacy permission is not authorized`。`card.js` 的 `_handleSaveFail` 按 errMsg 分流：privacy 类失败用 `wx.requirePrivacyAuthorize` 拉隐私弹窗、同意后自动重试保存；`__usePrivacyCheck__: true`（app.json）让开发者工具同样模拟隐私校验。选 Logo 的 `wx.chooseMedia` 也受隐私协议管（「收集你选中的照片或视频信息」），后台声明时要一并勾上。声明入口有两个（[官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/)）：已发布版本走「账号设置 → 服务内容声明 → 用户隐私保护指引」；**未发布过的小程序该入口不显示，须走「管理 → 版本管理 → 提交代码审核 → 信息填写页面」在提审时填写**，提审被拦截也在此入口更新。
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
-- 字体只用系统栈（serif / KaiTi / sans-serif），无 `shan`；要加网络字体需 `wx.loadFontFace`。
+- 小程序版字体无 `shan`。宋体/楷体走**网络子集字体**（`fonts/` 目录自建的 XW Serif / XW Kai 单文件 WOFF，经 jsdmirror 镜像引用，见 `fonts/README.md`）：`card.js` 的 `ensureFont` 按需 `wx.loadFontFace`（必须 `scopes: ['webview','native']`，canvas 是原生组件；必须单文件，公开 CDN 的 unicode-range 分片字体无法使用），切换时显示加载提示，失败 toast 后回退系统字体栈（FONTS 里网络字体名在前、系统字体在后）。黑体直接用系统黑体不下载。真机需在 mp 后台把 `cdn.jsdmirror.com` 配为 downloadFile 合法域名。
 - 用户输入持久化在 `wx.setStorageSync`（key `card-settings-v1`），`renderPreview()` 里统一保存、`onLoad` 里 `restoreSettings()` 恢复。Logo 选择后经 `wx.saveFile` 转存为持久文件再存路径（临时路径重启会失效；文件被系统清理时 `getLogo` 兜底为无 Logo）。
 
 ## 验证方式（无构建，零依赖）
