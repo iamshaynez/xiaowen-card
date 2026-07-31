@@ -29,9 +29,11 @@ var PALETTE = {
   songhuaBg: '#F1EAD6', songhuaFg: '#463C30', songhuaSub: '#7A6A52', songhuaFaint: '#A89A80', songhuaLine: '#DDD2B8'
 };
 
+// 网络子集字体（XW Serif / XW Kai，由 card.js 按需 wx.loadFontFace 加载）在前，
+// 加载失败或未加载时自然回退到系统字体栈；黑体直接用系统黑体，不下载
 var FONTS = {
-  serif: '"Songti SC","STSong",serif',
-  kai: '"Kaiti SC","KaiTi","STKaiti",serif',
+  serif: '"XW Serif","Songti SC","STSong",serif',
+  kai: '"XW Kai","Kaiti SC","KaiTi","STKaiti",serif',
   hei: '"PingFang SC","Hiragino Sans GB",sans-serif'
 };
 

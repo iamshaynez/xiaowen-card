@@ -64,7 +64,7 @@ miniprogram/          # 微信小程序版
 
 ## 双端差异
 
-- 网页版字体含网络字体（Noto Serif SC / 马善政毛笔体，走国内镜像 `fonts.loli.net`），小程序版使用系统字体栈（宋体 / 楷体 / 黑体）。
+- 网页版字体含网络字体（Noto Serif SC / 马善政毛笔体，走国内镜像 `fonts.loli.net`），小程序版按需加载自制子集字体（`fonts/` 目录的 XW Serif / XW Kai 单文件 WOFF，经 jsdmirror 镜像引用，黑体用系统黑体；加载失败自动回退系统字体栈）。
 - 落款输入两端一致：均为两个独立输入框（第一行日期/地点小字 / 第二行署名），渲染约定一致（`\n` 分隔、最多取两行）。
 - 小程序不支持复制图片到剪贴板，以「保存到相册」替代。
 - 修改卡片版式时请同步改动 `web/js/card.js` 与 `miniprogram/utils/card-renderer.js`。
