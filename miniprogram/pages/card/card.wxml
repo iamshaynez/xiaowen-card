@@ -6,8 +6,8 @@
   <view class="preview-note">预览即所得 · 保存为 1080px 宽高清 PNG</view>
 </view>
 
-<!-- 控制面板 -->
-<view class="panel">
+<!-- 控制面板（padding-top 顶出固定预览区的高度） -->
+<view class="panel" style="padding-top:{{previewH}}px">
   <view class="field">
     <text class="label">卡片类型</text>
     <view class="seg">
