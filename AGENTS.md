@@ -41,6 +41,7 @@
 - 排版永远按 **1080 逻辑宽度**计算；web 直接按此出图，小程序预览用 `scale = css宽 × dpr / 1080` 映射，导出用 `scale = 1`（1080px 高清 PNG，两端一致）。
 - 画布高度是**先排版测量、后定尺寸**算出来的（内容自适应）。
 - 换行是**逐字 measureText**（`wrapLines`），适配 CJK 混排；按 `\n` 分段，空段保留为空行（段距）。
+- **正文支持行内 Markdown**（quote/long 两模式均自动解析，仅正文，落款与 Banner 不解析）：`**粗体**`（字重提升：long 400→600、quote 600→700，并着冷漆红点睛色）、`*斜体*`（font 加 italic）、`` `行内代码` ``（主题发丝线色浅底 chip，roundRect+fill）、`[链接文字](url)`（文字下划发丝线，url 不显示）；不支持嵌套，未闭合标记按字面文本渲染。实现上 `parseInline` 把段落解析成 run 数组，`wrapLines` 展开为带样式字符流逐字断行（测量时按 run 切换 `ctx.font`），**`L.lines` 是 run 数组的行（`[{t, f}]`），空行是 `[]`**；正文逐 run 绘制，quote 模式居中改为「逐 run 实测行宽后左对齐排布」。解析器与排版数值两端逐行一致，改动需同步。
 - canvas 无 `letter-spacing`，Banner 宽字距用 `split('').join(' ')` hack，两端一致。
 - 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**。**落款两行皆空且无 Logo 时，整个落款行（发丝线 + 落款 + 印章）不绘制也不占高度**（布局 `hasSign` 开关，双端一致）；**上传 Logo 时由 Logo（`drawLogo`）替代印章位置**（此时即使落款为空落款行仍保留），Logo 不再出现在 Banner 区；Banner 头部只由 `brand` 文字触发。
 - 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。两端 UI 都是两个独立输入框（web 是 `inpSign1` / `inpSign2`，小程序是 `sign1` / `sign2`），均用 `\n` 拼接后交给渲染引擎；持久化也分两个字段存储（小程序端旧版合并存的 `signature` 字段在 `restoreSettings` 里做了一次性迁移，单行归入署名行）。单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。两端数值一致，改动需同步。

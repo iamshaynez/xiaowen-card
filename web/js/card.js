@@ -87,24 +87,105 @@
     ctx.closePath();
   }
 
-  // 逐字换行（适合中日韩混排），按 \n 分段，空段保留为空行
-  function wrapLines(ctx, text, maxWidth) {
+  /* ---------- 行内 Markdown ---------- */
+
+  // 匹配行首的 [label](url)，返回 {label, len} 或 null
+  function matchLink(s) {
+    var close = s.indexOf('](');
+    if (close <= 1) return null;
+    var end = s.indexOf(')', close + 2);
+    if (end < 0) return null;
+    return { label: s.slice(1, close), len: end + 1 };
+  }
+
+  // 行内 Markdown 解析：**粗体**、*斜体*、`行内代码`、`[链接文字](url)`
+  // 产出 run 数组 [{t, b, i, c, l}]；不支持嵌套，未闭合的标记按字面文本渲染
+  function parseInline(text) {
+    var runs = [];
+    function push(t, b, i, c, l) {
+      if (!t) return;
+      var last = runs[runs.length - 1];
+      if (last && last.b === b && last.i === i && last.c === c && last.l === l) last.t += t;
+      else runs.push({ t: t, b: b, i: i, c: c, l: l });
+    }
+    var plain = '', j = 0, m;
+    while (j < text.length) {
+      var rest = text.slice(j);
+      var ch = rest.charAt(0);
+      if (ch === '`' && (m = rest.indexOf('`', 1)) > 0) {
+        push(plain, false, false, false, false); plain = '';
+        push(rest.slice(1, m), false, false, true, false);
+        j += m + 1;
+      } else if (ch === '[' && (m = matchLink(rest))) {
+        push(plain, false, false, false, false); plain = '';
+        push(m.label, false, false, false, true);
+        j += m.len;
+      } else if (rest.slice(0, 2) === '**' && (m = rest.indexOf('**', 2)) > 2) {
+        push(plain, false, false, false, false); plain = '';
+        push(rest.slice(2, m), true, false, false, false);
+        j += m + 2;
+      } else if (ch === '*' && (m = rest.indexOf('*', 1)) > 1) {
+        push(plain, false, false, false, false); plain = '';
+        push(rest.slice(1, m), false, true, false, false);
+        j += m + 1;
+      } else {
+        plain += ch;
+        j++;
+      }
+    }
+    push(plain, false, false, false, false);
+    return runs;
+  }
+
+  // 把带样式字符流合并回 run 数组（相邻同一样式对象的字符合并）
+  function mergeStyled(chars) {
+    var out = [];
+    for (var i = 0; i < chars.length; i++) {
+      var c = chars[i];
+      var last = out[out.length - 1];
+      if (last && last.f === c.f) last.t += c.ch;
+      else out.push({ t: c.ch, f: c.f });
+    }
+    return out;
+  }
+
+  // run 字体：粗体提升字重（quote 基线 600→700，long 400→600），斜体加 italic
+  function runFont(f, size, stack, weight, boldWeight) {
+    return (f.i ? 'italic ' : '') + (f.b ? boldWeight : weight) + ' ' + size + 'px ' + stack;
+  }
+
+  // 逐字换行（适合中日韩混排），按 \n 分段，空段保留为空行（[]）
+  // 段内先解析行内 Markdown，测量时按字符所属 run 的字体累加宽度；
+  // 返回行数组，每行是 [{t, f}]（f 为该 run 的样式对象），空行为 []
+  function wrapLines(ctx, text, maxWidth, size, stack, weight, boldWeight) {
     var out = [];
     var paras = String(text || '').replace(/\r/g, '').split('\n');
     for (var i = 0; i < paras.length; i++) {
       var p = paras[i];
-      if (p === '') { out.push(''); continue; }
-      var line = '';
-      for (var j = 0; j < p.length; j++) {
-        var ch = p[j];
-        if (line && ctx.measureText(line + ch).width > maxWidth) {
-          out.push(line);
-          line = ch;
-        } else {
-          line += ch;
+      if (p === '') { out.push([]); continue; }
+      var runs = parseInline(p);
+      // 展开为带样式字符流
+      var chars = [];
+      for (var r = 0; r < runs.length; r++) {
+        for (var k = 0; k < runs[r].t.length; k++) {
+          chars.push({ ch: runs[r].t.charAt(k), f: runs[r] });
         }
       }
-      out.push(line);
+      // 贪心断行
+      var line = [], lineW = 0;
+      for (var j = 0; j < chars.length; j++) {
+        ctx.font = runFont(chars[j].f, size, stack, weight, boldWeight);
+        var w = ctx.measureText(chars[j].ch).width;
+        if (line.length && lineW + w > maxWidth) {
+          out.push(mergeStyled(line));
+          line = [chars[j]];
+          lineW = w;
+        } else {
+          line.push(chars[j]);
+          lineW += w;
+        }
+      }
+      out.push(mergeStyled(line));
     }
     return out;
   }
@@ -154,17 +235,17 @@
     var isQuote = o.mode === 'quote';
     var lh = isQuote ? 1.8 : 2.0;
     var weight = isQuote ? 600 : 400;
+    var boldWeight = isQuote ? 700 : 600;
     var lineH = Math.round(bodySize * lh);
     var paraGap = Math.round(bodySize * 0.7);
 
-    ctx.font = weight + ' ' + bodySize + 'px ' + o.font;
-    var lines = wrapLines(ctx, o.text, cw);
+    var lines = wrapLines(ctx, o.text, cw, bodySize, o.font, weight, boldWeight);
 
     var bodyH = 0;
     for (var i = 0; i < lines.length; i++) {
-      bodyH += lines[i] === '' ? paraGap : lineH;
+      bodyH += lines[i].length === 0 ? paraGap : lineH;
     }
-    if (lines.length && lines[lines.length - 1] === '') bodyH -= paraGap;
+    if (lines.length && lines[lines.length - 1].length === 0) bodyH -= paraGap;
 
     var quoteMarkH = isQuote ? Math.round(bodySize * 1.5) : 0;
 
@@ -192,7 +273,7 @@
     return {
       W: W, H: H, pad: pad, cw: cw, top: top, headH: headH,
       bodyTop: bodyTop, bodyH: bodyH, lines: lines, lineH: lineH,
-      paraGap: paraGap, bodySize: bodySize, weight: weight,
+      paraGap: paraGap, bodySize: bodySize, weight: weight, boldWeight: boldWeight,
       quoteMarkH: quoteMarkH, signY: H - 84 - signH, sealSize: sealSize,
       hasHead: hasHead, hasSign: hasSign, sigLines: sigLines
     };
@@ -304,21 +385,42 @@
       ctx.fillText('「', x0, y);
     }
 
-    /* 正文 */
-    ctx.font = L.weight + ' ' + L.bodySize + 'px ' + o.font;
+    /* 正文（支持行内 Markdown：粗体/斜体/代码 chip/链接下划线，逐 run 绘制） */
     ctx.fillStyle = theme.fg;
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     var cy = L.bodyTop;
     for (var i = 0; i < L.lines.length; i++) {
       var ln = L.lines[i];
-      if (ln === '') { cy += L.paraGap; continue; }
+      if (ln.length === 0) { cy += L.paraGap; continue; }
       var baseline = cy + L.bodySize * 0.85;
-      if (o.mode === 'quote') {
-        ctx.textAlign = 'center';
-        ctx.fillText(ln, L.W / 2, baseline);
-      } else {
-        ctx.textAlign = 'left';
-        ctx.fillText(ln, x0, baseline);
+      // 逐 run 实测行宽
+      var lineW = 0;
+      for (var r = 0; r < ln.length; r++) {
+        ctx.font = runFont(ln[r].f, L.bodySize, o.font, L.weight, L.boldWeight);
+        ln[r].w = ctx.measureText(ln[r].t).width;
+        lineW += ln[r].w;
+      }
+      var rx = o.mode === 'quote' ? (L.W - lineW) / 2 : x0;
+      for (var r2 = 0; r2 < ln.length; r2++) {
+        var run = ln[r2];
+        ctx.font = runFont(run.f, L.bodySize, o.font, L.weight, L.boldWeight);
+        if (run.f.c) {
+          // 行内代码：圆角浅底 chip（主题发丝线色铺底）
+          ctx.fillStyle = theme.line;
+          roundRect(ctx, rx - 6, cy - L.bodySize * 0.12, run.w + 12, L.bodySize * 1.3, L.bodySize * 0.2);
+          ctx.fill();
+          ctx.fillStyle = theme.fg;
+        }
+        // 粗体：字重提升 + 冷漆红点睛（与印章/引号同一强调色）
+        if (run.f.b) ctx.fillStyle = PALETTE.red;
+        ctx.fillText(run.t, rx, baseline);
+        if (run.f.b) ctx.fillStyle = theme.fg;
+        if (run.f.l) {
+          // 链接：文字下划发丝线（主文字色），url 不显示
+          ctx.fillRect(rx, Math.round(baseline + L.bodySize * 0.12), run.w, Math.max(1, Math.round(L.bodySize * 0.04)));
+        }
+        rx += run.w;
       }
       cy += L.lineH;
     }
