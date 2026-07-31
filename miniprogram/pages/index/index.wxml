@@ -2,7 +2,8 @@
 <view class="hero">
   <view class="kicker hero-kicker">TEXT TO CARD · 字 句 成 卡</view>
   <view class="hero-title">
-    把一句话，{'\n'}做成一张<text class="accent">好看</text>的卡片。
+    把一句话，<text>
+</text>做成一张<text class="accent">好看</text>的卡片。
   </view>
   <view class="hero-sub">
     金句卡片 · 长文卡片 —— Logo、Banner、正文、固定落款，字体字号随心调，八种优雅风格，一键保存到相册。
@@ -15,7 +16,8 @@
     <view class="sample-card">
       <view class="sample-head"><view class="dot"></view>小文卡片 · 每日一句</view>
       <view class="sample-rule"></view>
-      <view class="sample-quote">「 人生如逆旅，{'\n'}我亦是行人。 」</view>
+      <view class="sample-quote">「 人生如逆旅，<text>
+</text>我亦是行人。 」</view>
       <view class="sample-foot">
         <text class="sample-sign">—— 苏轼</text>
         <text class="sample-seal">印</text>
