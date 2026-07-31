@@ -1,10 +1,15 @@
-/* ============ 预览 ============ */
+/* ============ 预览（吸顶） ============ */
+/* 原生 canvas 在 sticky 容器内滚动时不会跟随重定位（与 webview 脱胶），
+   吸顶必须用 fixed + 面板动态 padding-top（previewH）实现 */
 .preview {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
   background: var(--paper);
   padding: 24rpx 32rpx 8rpx;
+  box-sizing: border-box;
 }
 .preview-frame {
   background: #fff;

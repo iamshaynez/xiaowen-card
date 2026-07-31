@@ -25,6 +25,7 @@ Page({
     fontSize: 56,
     logoPath: '',
     canvasH: '400px',
+    previewH: 0,          // 固定预览区的实测高度，用于顶开面板
     saving: false,
     styles: [
       { key: 'paper', name: '冷灰笺' },
@@ -133,11 +134,23 @@ Page({
         that.previewCssW = res[0].width;
         that.exportNode = res[1] && res[1].node;
         that.renderPreview();
+        that.updatePreviewH();
         // 恢复的网络字体静默补载：先用系统字体渲染，字体到位后再重绘一次
         that.ensureFont(that.data.fontFamily).then(function (ok) {
           if (ok && WEB_FONTS[that.data.fontFamily]) that.renderPreview();
         });
       });
+  },
+
+  // 实测固定预览区高度，顶开面板（预览吸顶由 fixed 实现，面板需让出位置）
+  updatePreviewH: function () {
+    var that = this;
+    wx.createSelectorQuery().in(this)
+      .select('.preview').boundingClientRect(function (rect) {
+        if (rect && rect.height && Math.ceil(rect.height) !== that.data.previewH) {
+          that.setData({ previewH: Math.ceil(rect.height) });
+        }
+      }).exec();
   },
 
   /* ---------- 渲染 ---------- */
@@ -188,7 +201,8 @@ Page({
       var h = Math.round(that.previewCssW * size.height / size.width);
       if (h !== that._lastH) {
         that._lastH = h;
-        that.setData({ canvasH: h + 'px' });
+        // 画布高度变化会改变固定预览区的总高，setData 完成后重新测量
+        that.setData({ canvasH: h + 'px' }, function () { that.updatePreviewH(); });
       }
     });
   },
