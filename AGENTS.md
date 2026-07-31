@@ -42,7 +42,7 @@
 - 画布高度是**先排版测量、后定尺寸**算出来的（内容自适应）。
 - 换行是**逐字 measureText**（`wrapLines`），适配 CJK 混排；按 `\n` 分段，空段保留为空行（段距）。
 - canvas 无 `letter-spacing`，Banner 宽字距用 `split('').join(' ')` hack，两端一致。
-- 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**（落款为空用「文」）。**上传 Logo 时由 Logo（`drawLogo`）替代印章位置**，Logo 不再出现在 Banner 区；Banner 头部只由 `brand` 文字触发。
+- 印章（`drawSeal`）：冷漆红圆角方块 + 奶白字，取落款**首行首字**。**落款两行皆空且无 Logo 时，整个落款行（发丝线 + 落款 + 印章）不绘制也不占高度**（布局 `hasSign` 开关，双端一致）；**上传 Logo 时由 Logo（`drawLogo`）替代印章位置**（此时即使落款为空落款行仍保留），Logo 不再出现在 Banner 区；Banner 头部只由 `brand` 文字触发。
 - 落款支持两行（`parseSignature`：split `\n` → trim → 去空 → 最多取 2 行）。两端 UI 都是两个独立输入框（web 是 `inpSign1` / `inpSign2`，小程序是 `sign1` / `sign2`），均用 `\n` 拼接后交给渲染引擎；持久化也分两个字段存储（小程序端旧版合并存的 `signature` 字段在 `restoreSettings` 里做了一次性迁移，单行归入署名行）。单行「—— 署名」；两行 = 上行 26px 三级灰 + 下行 34px 次级灰，右对齐相对印章垂直居中。两端数值一致，改动需同步。
 - 每款风格有一款签名式装饰（在底色之后、头部之前用 fillRect 绘制，双端逐字一致）：冷灰笺素面无装饰 / 玄黑卡四角裁切角线（cropMarks）/ 朱砂签左侧冷漆红竖条（cinnabar）/ 月白笺上下青瓷双弦纹（strings）/ 黛蓝卡碑拓界格（grid）/ 茶烟笺底部陶器底足带（groundBand）/ 竹青笺左侧竹简双纤线（slips）/ 松花笺信笺横格（ruled）。
 
@@ -80,7 +80,7 @@
 - 导出链：`wx.canvasToTempFilePath（传节点）→ wx.saveImageToPhotosAlbum`，授权拒绝时 `wx.openSetting` 引导，用户取消不提示。**Canvas 2D 节点自身没有 `toTempFilePath` 方法**（那是小游戏接口），小程序必须 `wx.canvasToTempFilePath({ canvas: node })`。
 - **保存属隐私接口**（微信隐私新规，`saveImageToPhotosAlbum` 对应「相册（仅写入）权限」）：mp 后台《用户隐私保护指引》必须声明该权限，否则真机报 `fail api scope is not declared in the privacy agreement`（errno 112）；用户未同意隐私授权时报 `fail privacy permission is not authorized`。`card.js` 的 `_handleSaveFail` 按 errMsg 分流：privacy 类失败用 `wx.requirePrivacyAuthorize` 拉隐私弹窗、同意后自动重试保存；`__usePrivacyCheck__: true`（app.json）让开发者工具同样模拟隐私校验。选 Logo 的 `wx.chooseMedia` 也受隐私协议管（「收集你选中的照片或视频信息」），后台声明时要一并勾上。声明入口有两个（[官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/)）：已发布版本走「账号设置 → 服务内容声明 → 用户隐私保护指引」；**未发布过的小程序该入口不显示，须走「管理 → 版本管理 → 提交代码审核 → 信息填写页面」在提审时填写**，提审被拦截也在此入口更新。
 - 小程序不支持复制图片到剪贴板——这是有意的双端差异，用「保存到相册」替代，不要"修复"它。
-- **原生 canvas 不能放进 `position: sticky` 容器**：sticky 滚动时每帧改位置，原生 canvas 图层不会跟随重定位，会与 webview 脱胶（画布滚走、容器框吸顶不动）。制作页预览吸顶因此用 `position: fixed` + 面板动态 `padding-top`（`updatePreviewH` 实测预览区高度，画布高度变化后在 setData 回调里重测）。
+- **原生 canvas 的吸顶/固定容器会滚动脱胶**：canvas 图层不跟随 `position: sticky`/`fixed` 容器在页面滚动中重定位（边框吸顶停住、图像随页面滚走）。制作页的解法是**页面本身不滚动**：预览 `fixed` 吸顶，面板放进 `scroll-view` 内部滚动（`.panel-scroll` 撑满视口，`.panel` 用动态 `padding-top:{{previewH}}px` 让出预览区，`updatePreviewH` 实测高度、画布高度变化后在 setData 回调里重测）。
 - 小程序版字体无 `shan`。宋体/楷体走**网络子集字体**（`fonts/` 目录自建的 XW Serif / XW Kai 单文件 WOFF，经 jsdmirror 镜像引用，见 `fonts/README.md`）：`card.js` 的 `ensureFont` 按需 `wx.loadFontFace`（必须 `scopes: ['webview','native']`，canvas 是原生组件；必须单文件，公开 CDN 的 unicode-range 分片字体无法使用），切换时显示加载提示，失败 toast 后回退系统字体栈（FONTS 里网络字体名在前、系统字体在后）。黑体直接用系统黑体不下载。真机需在 mp 后台把 `cdn.jsdmirror.com` 配为 downloadFile 合法域名。
 - 用户输入持久化在 `wx.setStorageSync`（key `card-settings-v1`），`renderPreview()` 里统一保存、`onLoad` 里 `restoreSettings()` 恢复。Logo 选择后经 `wx.saveFile` 转存为持久文件再存路径（临时路径重启会失效；文件被系统清理时 `getLogo` 兜底为无 Logo）。
 
