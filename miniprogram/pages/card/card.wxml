@@ -6,8 +6,10 @@
   <view class="preview-note">预览即所得 · 保存为 1080px 宽高清 PNG</view>
 </view>
 
-<!-- 控制面板（页面不滚动，面板在 scroll-view 内滚动；padding-top 让出吸顶预览区） -->
-<scroll-view scroll-y class="panel-scroll">
+<!-- 控制面板（页面不滚动，面板在 scroll-view 内滚动；padding-top 让出吸顶预览区）
+     注意：input 聚焦时必须禁滚（inputFocus），否则全屏高 scroll-view 内
+     原生 input 聚焦定位计算出错，文字会上浮错位到吸顶预览区（微信已知 bug） -->
+<scroll-view scroll-y="{{!inputFocus}}" class="panel-scroll">
 <view class="panel" style="padding-top:{{previewH}}px">
   <view class="field">
     <text class="label">卡片类型</text>
@@ -42,23 +44,25 @@
       auto-height
       maxlength="-1"
       bindinput="onText"
+      bindfocus="onFieldFocus"
+      bindblur="onFieldBlur"
     />
   </view>
 
   <view class="field-row">
     <view class="field">
       <text class="label">落款 · 第一行</text>
-      <input class="input" value="{{sign1}}" maxlength="20" placeholder="日期 / 地点" bindinput="onSign1" />
+      <input class="input" value="{{sign1}}" maxlength="20" placeholder="日期 / 地点" bindinput="onSign1" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
     </view>
     <view class="field">
       <text class="label">落款 · 第二行</text>
-      <input class="input" value="{{sign2}}" maxlength="20" placeholder="署名" bindinput="onSign2" />
+      <input class="input" value="{{sign2}}" maxlength="20" placeholder="署名" bindinput="onSign2" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
     </view>
   </view>
 
   <view class="field">
     <text class="label">Banner 顶部文字</text>
-    <input class="input" value="{{brand}}" maxlength="30" bindinput="onBrand" />
+    <input class="input" value="{{brand}}" maxlength="30" bindinput="onBrand" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
   </view>
 
   <view class="field">
