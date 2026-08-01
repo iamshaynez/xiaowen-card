@@ -26,6 +26,7 @@ Page({
     logoPath: '',
     canvasH: '400px',
     previewH: 0,          // 固定预览区的实测高度，用于顶开面板
+    inputFocus: false,    // 任一输入框聚焦时为 true（聚焦期禁面板滚动，防原生 input 文字上浮错位）
     saving: false,
     styles: [
       { key: 'paper', name: '冷灰笺' },
@@ -265,6 +266,17 @@ Page({
   onBrand: function (e) {
     this.setData({ brand: e.detail.value });
     this.scheduleRender();
+  },
+
+  // 输入框聚焦期禁止面板滚动：全屏高 scroll-view 内的原生 input 聚焦时，
+  // 微信对焦点定位计算出错会导致已输入文字上浮错位（错位到吸顶预览区），
+  // 禁滚可规避；失焦恢复滚动。textarea 同理。
+  onFieldFocus: function () {
+    if (!this.data.inputFocus) this.setData({ inputFocus: true });
+  },
+
+  onFieldBlur: function () {
+    if (this.data.inputFocus) this.setData({ inputFocus: false });
   },
 
   onSizeChanging: function (e) {
