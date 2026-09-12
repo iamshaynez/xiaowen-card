@@ -29,6 +29,7 @@
   justify-content: center;
 }
 .card-canvas {
+  /* 默认占满；正文过长触发预览封顶时由内联 style 改为缩窄的 px 宽 */
   width: 100%;
   border-radius: 8rpx;
   box-shadow: 0 16rpx 40rpx -18rpx rgba(20, 18, 16, 0.35);

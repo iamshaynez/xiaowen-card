@@ -25,6 +25,7 @@ Page({
     fontSize: 56,
     logoPath: '',
     canvasH: '400px',
+    canvasW: '100%',      // 正文过长触发预览封顶后改为缩窄的 px 宽（等比缩小显示）
     previewH: 0,          // 固定预览区的实测高度，用于顶开面板
     inputFocus: false,    // 任一输入框聚焦时为 true（聚焦期禁面板滚动，防原生 input 文字上浮错位）
     saving: false,
@@ -51,6 +52,7 @@ Page({
     this._logoImgs = {};    // 每个画布各自的 Logo Image 缓存
     this._fontReady = {};   // 已加载成功的网络字体
     this._lastH = 0;
+    this._lastW = 0;
     this.restoreSettings();
   },
 
@@ -126,6 +128,9 @@ Page({
     var that = this;
     var info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.dpr = info.pixelRatio || 2;
+    // 预览画布显示高度上限（视口 45%）：fixed 预览一旦撑满整屏，滚动手势全部
+    // 落在预览层，底下 scroll-view 收不到任何事件，面板会被顶出视口且无法滚回
+    this.previewMaxH = Math.round((info.windowHeight || 0) * 0.45);
     wx.createSelectorQuery().in(this)
       .select('#cardCanvas').fields({ node: true, size: true })
       .select('#exportCanvas').fields({ node: true, size: true })
@@ -200,10 +205,18 @@ Page({
       var scale = that.previewCssW * that.dpr / CardRenderer.CARD_W;
       var size = CardRenderer.render(that.canvasNode, that.collectOpts(logo, scale));
       var h = Math.round(that.previewCssW * size.height / size.width);
-      if (h !== that._lastH) {
+      // 显示高度封顶：超高时等比缩小 CSS 显示宽高（位图缓冲不变，不变形不糊），
+      // 保证预览永不盖满整屏、下方面板始终可滚动到达
+      var w = '100%';
+      if (that.previewMaxH && h > that.previewMaxH) {
+        w = Math.round(that.previewCssW * that.previewMaxH / h) + 'px';
+        h = that.previewMaxH;
+      }
+      if (h !== that._lastH || w !== that._lastW) {
         that._lastH = h;
+        that._lastW = w;
         // 画布高度变化会改变固定预览区的总高，setData 完成后重新测量
-        that.setData({ canvasH: h + 'px' }, function () { that.updatePreviewH(); });
+        that.setData({ canvasH: h + 'px', canvasW: w }, function () { that.updatePreviewH(); });
       }
     });
   },
