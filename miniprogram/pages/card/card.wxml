@@ -1,7 +1,8 @@
-<!-- 预览（吸顶，所见即所得） -->
+<!-- 预览（吸顶，所见即所得）；画布显示高封顶在视口 45%，正文过长时等比缩小显示，
+     防止 fixed 预览盖满整屏导致下方面板收不到滚动手势、无法滚回 -->
 <view class="preview">
   <view class="preview-frame">
-    <canvas type="2d" id="cardCanvas" class="card-canvas" style="height:{{canvasH}}"></canvas>
+    <canvas type="2d" id="cardCanvas" class="card-canvas" style="width:{{canvasW}};height:{{canvasH}}"></canvas>
   </view>
   <view class="preview-note">预览即所得 · 保存为 1080px 宽高清 PNG</view>
 </view>
