@@ -114,10 +114,13 @@ cd web && python3 -m http.server 8080        # 网页版
 
 ## 小程序发布（CI 手动上传）
 
-小程序代码上传走 GitHub Actions workflow `.github/workflows/mp-upload.yml`，**纯手动触发**（`workflow_dispatch`，无任何自动触发条件）。版本号在触发时以参数传入，不依赖 git tag。
+小程序代码上传走 GitHub Actions workflow `.github/workflows/mp-upload.yml`，**纯手动触发**（`workflow_dispatch`，无任何自动触发条件）。**版本号自动递增**：触发时 `version` 留空，CI 自动取仓库最新 `vX.Y.Z` tag 的 patch +1 作为上传版本号，**上传成功后回写 `v<版本>` tag 作为下一次递增的基准**（workflow 已声明 `contents: write` 权限）；每次上传版本号严格 +1，不再依赖人工记忆。显式传 `version` 可覆盖（如重传旧版本，此时 tag 已存在则跳过回写并警告）。
 
 ```bash
-# 手动触发上传（version 为上传版本号，workflow 只能跑在默认分支 main 上）
+# 触发上传（推荐：version 留空自动递增；workflow 只能跑在默认分支 main 上）
+gh workflow run mp-upload.yml
+
+# 显式指定版本号（重传 / 里程碑版本）
 gh workflow run mp-upload.yml -f version=1.0.0
 
 # 查看运行状态
@@ -130,6 +133,7 @@ gh run list --workflow mp-upload.yml --limit 1
 - 凭据走仓库 Secrets：`MP_APPID`（真实 AppID）+ `MP_PRIVATE_KEY`（mp 后台「开发管理 → 开发设置 → 小程序代码上传」下载的私钥全文）。私钥不落仓库，workflow 里临时写入 `private.key` 用完即弃。
 - mp 后台的代码上传 **IP 白名单必须关闭**（GitHub Actions 出口 IP 不固定，否则报 `errCode -10008 invalid ip`）。
 - 上传成功后代码进入 mp 后台「版本管理」的开发版本，**提交审核和全量发布仍需人工在 mp.weixin.qq.com 点击**，普通自研小程序没有开放接口可自动化这两步。
+- 含小程序改动的版本发布可省去手动打 tag：上传时 CI 已自动回写 `v<版本>` tag（指向触发时的 main HEAD）；纯 web 改动仍按「分支与发布」一节手动打 tag。
 
 ## 工程约定
 

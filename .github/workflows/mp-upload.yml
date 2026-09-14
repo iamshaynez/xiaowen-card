@@ -1,24 +1,49 @@
 name: 小程序上传
 
 # 纯手动触发（workflow_dispatch），无任何自动触发条件。
-# 触发方式见 AGENTS.md「小程序发布」一节；
-# 上传后仍需在 mp.weixin.qq.com 手动「提交审核 → 发布」。
+# 版本号稳定递增：version 留空时自动取仓库最新 vX.Y.Z tag 的 patch +1 作为上传版本号，
+# 上传成功后回写 v<version> tag 作为下一次递增的基准；显式传 version 可覆盖（如重传旧版本）。
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 上传版本号，如 1.0.0
-        required: true
+        description: 上传版本号（留空则自动 = 最新 vX.Y.Z 的 patch +1）
+        required: false
+        default: ''
+
+# 自动递增需要把 v<version> tag 推回仓库
+permissions:
+  contents: write
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
+      # 拉全量历史与 tag，供版本号递增计算
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      # 显式传入的 version 优先；否则最新 vX.Y.Z tag 的 patch +1
+      - name: 计算版本号
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          base=$(git tag --list 'v[0-9]*' --sort=-v:refname | head -n 1 | sed 's/^v//')
+          if ! printf '%s' "$base" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::仓库里没有 vX.Y.Z 格式的 tag，无法自动递增版本号，请显式传 version"
+            exit 1
+          fi
+          echo "version=$(echo "$base" | awk -F. '{print $1"."$2"."$3+1}')" >> "$GITHUB_OUTPUT"
 
       # 私钥来自 Secrets（MP_PRIVATE_KEY），不落仓库
       - name: 写入上传密钥
@@ -30,7 +55,7 @@ jobs:
       - name: 上传小程序代码
         env:
           MP_APPID: ${{ secrets.MP_APPID }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ steps.ver.outputs.version }}
         run: |
           npx --yes miniprogram-ci upload \
             --pp ./miniprogram \
@@ -41,3 +66,18 @@ jobs:
             -r 1 \
             --enable-es6 true \
             --minify true
+
+      # 上传成功后回写 tag，作为下一次自动递增的基准；已存在或推送失败只警告不失败，
+      # 避免代码已传上去却让整个 run 显示失败
+      - name: 回写版本 tag
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::warning::tag v$VERSION 已存在（可能是显式重传同一版本），跳过回写"
+            exit 0
+          fi
+          git tag "v$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/v$VERSION" || echo "::warning::推送 tag v$VERSION 失败，下一次自动递增可能重复该版本号，请手动补 tag"
