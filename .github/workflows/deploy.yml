@@ -28,8 +28,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.ACR_REGISTRY }}/girlboss/card:${{ github.sha }}
-            ${{ secrets.ACR_REGISTRY }}/girlboss/card:main
+            ${{ secrets.ACR_REGISTRY }}/xiaowenz/card:${{ github.sha }}
+            ${{ secrets.ACR_REGISTRY }}/xiaowenz/card:main
 
       - name: 部署到测试机(本机)
         run: |
