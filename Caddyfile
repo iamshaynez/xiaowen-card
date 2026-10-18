@@ -1,0 +1,11 @@
+# 自托管静态托管(替代 Zeabur 自动生成的 Caddyfile)。
+# 站点为单页应用:index.html + assets/?v= 查询串控缓存,故 HTML 必须 no-cache,
+# 静态资源可长缓存(改动即 bump 版本串,见 AGENTS.md)。
+:8080 {
+    root * /usr/share/caddy
+    encode gzip zstd
+    header / Cache-Control "no-cache"
+    header /index.html Cache-Control "no-cache"
+    try_files {path} /index.html
+    file_server
+}
